@@ -232,6 +232,24 @@ class RfqForm extends Component
                 $this->addError('status', 'A Lost RFQ cannot be changed to another status.');
                 return;
             }
+
+            // Awarded status requires at least one of NOA / PO / NTP to be checked
+            if ($this->status === 'Awarded') {
+                $docs = $current->documents ?? [];
+                $hasAwardDoc = !empty($docs['notice_of_award'])
+                            || !empty($docs['purchase_order'])
+                            || !empty($docs['ntp']);
+                if (!$hasAwardDoc) {
+                    $this->addError('status', 'Status can only be set to Awarded when Notice of Award, Purchase Order, or NTP is marked as received.');
+                    return;
+                }
+            }
+        } else {
+            // New RFQs cannot be set directly to Awarded
+            if ($this->status === 'Awarded') {
+                $this->addError('status', 'A new RFQ cannot be set to Awarded. Create it first, then mark the appropriate documents in the tracker.');
+                return;
+            }
         }
 
         // --- Validation ---
