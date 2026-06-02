@@ -132,7 +132,7 @@
                     <p class="text-red-500 text-xs mb-2">{{ $message }}</p>
                 @enderror
                 <button type="button" wire:click="parsePastedItems"
-                        class="bg-gray-900 hover:bg-gray-800 dark:bg-blue-600 dark:hover:bg-blue-700 prime:bg-green-600 prime:hover:bg-green-700 text-white text-xs font-medium px-4 py-2 rounded-lg transition">
+                        class="bg-gray-900 hover:bg-gray-800 dark:bg-red-900 dark:hover:bg-red-700 prime:bg-green-600 prime:hover:bg-green-700 text-white text-xs font-medium px-4 py-2 rounded-lg transition">
                     Import Items
                 </button>
             </div>

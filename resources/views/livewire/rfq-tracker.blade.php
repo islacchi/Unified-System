@@ -20,7 +20,8 @@
 
     {{-- Metrics --}}
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div class="bg-gray-50 border border-gray-300 dark:bg-[#1a1a1a] dark:border dark:border-red-900 prime:bg-green-50 prime:border prime:border-green-900 rounded-xl p-4">
+        <div wire:click="setStatus('all')"
+             class="bg-gray-50 border border-gray-300 dark:bg-[#1a1a1a] dark:border dark:border-red-900 prime:bg-green-50 prime:border prime:border-green-900 rounded-xl p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#2a2a2a] prime:hover:bg-green-100 transition {{ $status === 'all' ? 'ring-2 ring-gray-400 dark:ring-red-700 prime:ring-green-500' : '' }}">
             <p class="text-xs text-gray-500 dark:text-gray-400 prime:text-green-900 mb-1">Total RFQs</p>
             <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100 prime:text-gray-900">{{ $metrics['total'] }}</p>
         </div>
@@ -28,11 +29,13 @@
             <p class="text-xs text-gray-500 dark:text-red-400 prime:text-green-900 mb-1">Pending action</p>
             <p class="text-2xl font-semibold text-gray-900 dark:text-red-400 prime:text-gray-900">{{ $metrics['pending'] }}</p>
         </div>
-        <div class="bg-gray-50 border border-gray-300 dark:bg-[#1a1a1a] dark:border dark:border-red-900 prime:bg-green-50 prime:border prime:border-green-900 rounded-xl p-4">
+        <div wire:click="setStatus('Quoted')"
+             class="bg-gray-50 border border-gray-300 dark:bg-[#1a1a1a] dark:border dark:border-red-900 prime:bg-green-50 prime:border prime:border-green-900 rounded-xl p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#2a2a2a] prime:hover:bg-green-100 transition {{ $status === 'Quoted' ? 'ring-2 ring-gray-400 dark:ring-red-700 prime:ring-green-500' : '' }}">
             <p class="text-xs text-gray-500 dark:text-gray-400 prime:text-green-900 mb-1">Quoted</p>
             <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100 prime:text-gray-900">{{ $metrics['quoted'] }}</p>
         </div>
-        <div class="bg-gray-50 border border-gray-300 dark:bg-[#1a1a1a] dark:border dark:border-red-900 prime:bg-green-50 prime:border prime:border-green-900 rounded-xl p-4">
+        <div wire:click="setStatus('Awarded')"
+             class="bg-gray-50 border border-gray-300 dark:bg-[#1a1a1a] dark:border dark:border-red-900 prime:bg-green-50 prime:border prime:border-green-900 rounded-xl p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-[#2a2a2a] prime:hover:bg-green-100 transition {{ $status === 'Awarded' ? 'ring-2 ring-gray-400 dark:ring-red-700 prime:ring-green-500' : '' }}">
             <p class="text-xs text-gray-500 dark:text-gray-400 prime:text-green-900 mb-1">Awarded</p>
             <p class="text-2xl font-semibold text-gray-900 dark:text-gray-100 prime:text-gray-900">{{ $metrics['awarded'] }}</p>
         </div>
