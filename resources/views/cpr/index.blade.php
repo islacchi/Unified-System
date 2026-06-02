@@ -241,6 +241,7 @@
         #loading-overlay {
             background: rgba(15,17,23,0.7);
             backdrop-filter: blur(6px);
+            top: 56px !important;
         }
         .dark #loading-overlay { background: rgba(10,12,18,0.8); }
 
@@ -304,7 +305,7 @@
         .dark .days-bad  { color: #f87171; }
 </style>
 {{-- ── Loading Overlay ── --}}
-    <div id="loading-overlay" style="display:none;" class="fixed inset-0 z-50 flex flex-col items-center justify-center">
+    <div id="loading-overlay" style="display:none;top:56px;left:0;right:0;bottom:0;position:fixed;" class="z-40 flex flex-col items-center justify-center">
         <div class="text-center">
             <div class="text-5xl animate-bounce mb-5">💊</div>
             <p id="loading-msg" style="color:#9ba5bc; font-size:13px;" class="truncate w-72 mx-auto"></p>

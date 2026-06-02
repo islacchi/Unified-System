@@ -113,24 +113,30 @@
                     </tr>
                 @endforelse
             </tbody>
-            @if ($rfq->items->count() > 0)
-                <tfoot class="bg-gray-50 border-t border-gray-200">
-                    <tr>
-                        <td colspan="5" class="px-4 py-2 text-right text-sm font-medium text-gray-500">Total Quoted</td>
-                        <td class="px-4 py-2 font-bold text-gray-900">₱{{ number_format($rfq->total_quoted, 2) }}</td>
-                    </tr>
-                    @if ($rfq->abc)
-                        @php $remaining = $rfq->abc - $rfq->total_quoted; @endphp
-                        <tr>
-                            <td colspan="5" class="px-4 py-2 text-right text-sm font-medium text-gray-500">ABC Remaining</td>
-                            <td class="px-4 py-2 font-bold {{ $remaining < 0 ? 'text-red-600' : 'text-green-700' }}">
-                                ₱{{ number_format(abs($remaining), 2) }} {{ $remaining < 0 ? '(over budget)' : '' }}
-                            </td>
-                        </tr>
-                    @endif
-                </tfoot>
-            @endif
+        {{-- tfoot removed — totals shown below the table instead --}}
+</table>
+
+    @if ($rfq->items->count() > 0)
+        @php $remaining = $rfq->abc ? $rfq->abc - $rfq->total_quoted : null; @endphp
+ <table class="w-full mt-0">
+            <tfoot class="border-t-2 border-gray-300">
+                <tr>
+                    <td colspan="4" class="px-4 py-2"></td>
+                    <td class="px-4 py-2 text-right text-sm font-medium text-gray-500">Total Quoted</td>
+                    <td class="px-4 py-2 font-bold text-gray-900 text-right">₱{{ number_format($rfq->total_quoted, 2) }}</td>
+                </tr>
+                @if ($remaining !== null)
+                <tr>
+                    <td colspan="4" class="px-4 py-2"></td>
+                    <td class="px-4 py-2 text-right text-sm font-medium text-gray-500">ABC Remaining</td>
+                    <td class="px-4 py-2 font-bold text-right {{ $remaining < 0 ? 'text-red-600' : 'text-green-700' }}">
+                        ₱{{ number_format(abs($remaining), 2) }} {{ $remaining < 0 ? '(over budget)' : '' }}
+                    </td>
+                </tr>
+                @endif
+            </tfoot>
         </table>
+    @endif
     </div>
 
     {{-- Documents on Hand --}}
@@ -152,12 +158,16 @@
                     $isChecked = is_array($docData) ? !empty($docData['received']) : (bool) $docData;
                     $docDate   = is_array($docData) ? ($docData['date'] ?? '') : '';
                 @endphp
-                <div class="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
+          <div class="flex items-center gap-3 bg-gray-50 border border-gray-200 rounded-lg px-4 py-3">
                     <span class="{{ $isChecked ? 'text-green-600' : 'text-gray-300' }} text-lg">{{ $isChecked ? '✓' : '○' }}</span>
                     <div>
                         <p class="text-sm font-medium {{ $isChecked ? 'text-gray-900' : 'text-gray-400' }}">{{ $label }}</p>
-                        @if ($isChecked && $docDate)
-                            <p class="text-xs text-gray-400">Received: {{ \Carbon\Carbon::parse($docDate)->format('M d, Y') }}</p>
+                        @if ($isChecked)
+                            <p class="text-xs text-gray-400">
+                                {{ $docDate ? 'Received: ' . \Carbon\Carbon::parse($docDate)->format('M d, Y') : 'Date not recorded' }}
+                            </p>
+                        @else
+                            <p class="text-xs text-gray-300">Not on hand</p>
                         @endif
                     </div>
                 </div>

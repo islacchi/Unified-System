@@ -37,21 +37,32 @@
             </a>
 
             {{-- Nav links --}}
-            <div class="flex items-center gap-1 text-sm">
-                <a href="{{ route('rfqs.index') }}"
-                   class="px-4 py-2 rounded-lg transition font-medium
-                       {{ request()->is('rfqs*')
-                           ? 'bg-gray-900 text-white dark:bg-red-900 dark:text-gray-100 prime:bg-green-600 prime:text-white'
-                           : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-[#2a2a2a] prime:text-gray-600 prime:hover:text-gray-900 prime:hover:bg-green-50' }}">
-                    RFQ's
-                </a>
-                <a href="{{ route('agencies.index') }}"
-                   class="px-4 py-2 rounded-lg transition font-medium
-                       {{ request()->is('agencies*')
-                           ? 'bg-gray-900 text-white dark:bg-red-900 dark:text-gray-100 prime:bg-green-600 prime:text-white'
-                           : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-[#2a2a2a] prime:text-gray-600 prime:hover:text-gray-900 prime:hover:bg-green-50' }}">
-                    Agencies
-                </a>
+         {{-- Nav links --}}
+            <div class="flex items-center gap-1 text-sm" x-data="{ rfqOpen: {{ request()->is('rfqs*') || request()->is('agencies*') ? 'true' : 'false' }} }">
+                {{-- RFQ's toggle button --}}
+                <button @click="rfqOpen = !rfqOpen"
+                        class="px-4 py-2 rounded-lg transition font-medium flex items-center gap-1
+                            {{ request()->is('rfqs*') || request()->is('agencies*')
+                                ? 'bg-gray-900 text-white dark:bg-red-900 dark:text-gray-100 prime:bg-green-600 prime:text-white'
+                                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-[#2a2a2a] prime:text-gray-600 prime:hover:text-gray-900 prime:hover:bg-green-50' }}">
+                    <a href="{{ route('rfqs.index') }}" @click.stop>RFQ's</a>
+                   <svg class="w-3 h-3 transition-transform duration-300" :class="rfqOpen ? 'rotate-90' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    </svg>
+                </button>
+
+                {{-- Agencies — slides out when rfqOpen --}}
+                <div class="overflow-hidden transition-all duration-300 ease-in-out"
+                     :style="rfqOpen ? 'max-width: 120px; opacity: 1;' : 'max-width: 0px; opacity: 0;'">
+                    <a href="{{ route('agencies.index') }}"
+                       class="px-4 py-2 rounded-lg transition font-medium
+                           {{ request()->is('agencies*')
+                               ? 'bg-gray-900 text-white dark:bg-red-900 dark:text-gray-100 prime:bg-green-600 prime:text-white'
+                               : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-[#2a2a2a] prime:text-gray-600 prime:hover:text-gray-900 prime:hover:bg-green-50' }}">
+                        Agencies
+                    </a>
+                </div>
+
                 <a href="{{ route('cpr.index') }}"
                    class="px-4 py-2 rounded-lg transition font-medium
                        {{ request()->is('cpr*')

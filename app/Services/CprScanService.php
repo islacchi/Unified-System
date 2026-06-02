@@ -86,14 +86,11 @@ class CprScanService
         if ($forceRescan) {
             CprRecord::whereIn('filename', collect($files)->map(fn($f) => basename($f))->toArray())->delete();
         }
+$filenames = collect($files)->map(fn($f) => basename($f))->toArray();
 
-        $filenames       = collect($files)->map(fn($f) => basename($f))->toArray();
-        $existingRecords = CprRecord::whereIn('filename', $filenames)
-            ->whereNotNull('registration_number')
-            ->whereNotNull('expiry_date')
-            ->get()
-            ->keyBy('filename');
-
+$existingRecords = CprRecord::whereIn('filename', $filenames)
+    ->get()
+    ->keyBy('filename');
         [$rowsToUpsert, $filesToParse, $duplicates, $fromDb] = $this->classifyFiles(
             $files, $existingRecords, $folderPath
         );

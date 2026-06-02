@@ -135,7 +135,7 @@ public function getMetricsProperty(): array
 {
     $all     = Rfq::count();
     $pending = Rfq::whereIn('status', ['Received', 'Reviewing'])->count();
-    $quoted  = Rfq::whereIn('status', ['Quoted', 'Awarded', 'Lost'])->count();
+    $quoted  = Rfq::where('status', 'Quoted')->count();
     $awarded = Rfq::where('status', 'Awarded')->count();
 
     return [
@@ -143,7 +143,7 @@ public function getMetricsProperty(): array
         'pending'  => $pending,
         'quoted'   => $quoted,
         'awarded'  => $awarded,
-        'win_rate' => $quoted > 0 ? round(($awarded / $quoted) * 100) : 0,
+        'win_rate' => ($quoted + $awarded) > 0 ? round(($awarded / ($quoted + $awarded)) * 100) : 0,
     ];
 }
     // -------------------------------------------------------------------------
