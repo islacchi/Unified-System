@@ -181,6 +181,7 @@
                                     'ntp'             => 'NTP',
                                 ];
                                 $rfqDocs = $rfq->documents ?? [];
+                                $allPriced = $rfq->items->every(fn($item) => !empty($item->unit_price));
                                 @endphp
                                 @foreach ($docs as $key => $label)
                                     @php
@@ -192,10 +193,13 @@
                                         <label class="flex items-center gap-2 cursor-pointer select-none group">
                                             <input type="checkbox"
                                                    @checked($isChecked)
-                                                   @disabled(in_array($key, ['notice_of_award', 'purchase_order', 'ntp']) && $rfq->status === 'Lost')
+                                                   @disabled(in_array($key, ['notice_of_award', 'purchase_order', 'ntp']) && ($rfq->status === 'Lost' || !$allPriced))
                                                    wire:click.stop="toggleDoc({{ $rfq->id }}, '{{ $key }}')"
                                                    class="w-4 h-4 rounded border-gray-300 dark:border-[var(--border)] text-blue-600 focus:ring-blue-500 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
-                                            <span class="text-sm text-gray-700 dark:text-[var(--text-2)] prime:text-gray-700 group-hover:text-gray-900 dark:group-hover:text-[var(--text-1)] prime:group-hover:text-green-900">{{ $label }}</span>
+                                            @php
+                                                $isDocDisabled = in_array($key, ['notice_of_award', 'purchase_order', 'ntp']) && ($rfq->status === 'Lost' || !$allPriced);
+                                            @endphp
+                                            <span class="text-sm {{ $isDocDisabled ? 'text-gray-400 dark:text-[var(--text-3)] prime:text-gray-400' : 'text-gray-700 dark:text-[var(--text-2)] prime:text-gray-700 group-hover:text-gray-900 dark:group-hover:text-[var(--text-1)] prime:group-hover:text-green-900' }}">{{ $label }}</span>
                                         </label>
                                         @if($isChecked)
                                             <div class="ml-6 flex items-center gap-2">

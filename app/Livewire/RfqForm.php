@@ -256,9 +256,9 @@ class RfqForm extends Component
         $this->validate([
             'agency_id'                => 'required|exists:agencies,id',
             'date_received'            => 'required|date',
-            'deadline'                 => 'nullable|date|after_or_equal:date_received',
+            'deadline'                 => 'required|date|after_or_equal:date_received',
             'abc'                      => 'nullable|numeric|min:0',
-            'status'                   => 'required|in:Received,Reviewing,Awarded,Lost',
+            'status'                   => 'required|in:Received,Reviewing,Lost',
             'notes'                    => 'nullable|string',
             'philgeps_ref'             => 'nullable|string',
             'items.*.item_description' => 'required|string',

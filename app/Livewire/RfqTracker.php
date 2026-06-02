@@ -93,24 +93,40 @@ class RfqTracker extends Component
     // -------------------------------------------------------------------------
 public function toggleDoc(int $rfqId, string $doc): void
 {
-    $rfq     = Rfq::findOrFail($rfqId);
+    $rfq     = Rfq::with('items')->findOrFail($rfqId);
     $docs    = $rfq->documents ?? [];
     $current = $docs[$doc] ?? false;
 
-    // Prevent checking NOA or NTP if the RFQ is Lost
+    // Prevent checking NOA, PO, or NTP if the RFQ is Lost
 if (in_array($doc, ['notice_of_award', 'purchase_order', 'ntp']) && $rfq->status === 'Lost') {
     $this->addError('doc_error_' . $rfqId, 'Cannot mark this document on a Lost RFQ.');
     return;
 }
+
+    // Prevent checking NOA, PO, or NTP unless ALL items have a unit price (fully quoted)
+    if (in_array($doc, ['notice_of_award', 'purchase_order', 'ntp']) && !$current) {
+        $allPriced = $rfq->items->every(fn($item) => !empty($item->unit_price));
+        if (!$allPriced) {
+            $this->addError('doc_error_' . $rfqId, 'Cannot mark award documents — all items must have a quoted price first.');
+            return;
+        }
+    }
 
     $docs[$doc] = $current ? false : ['received' => true, 'date' => null];
     $rfq->update(['documents' => $docs]);
 
     // Any of these three documents indicates the RFQ was awarded
     if (in_array($doc, ['notice_of_award', 'purchase_order', 'ntp'])) {
-        $rfq->update([
-            'status' => $current ? 'Quoted' : 'Awarded',
-        ]);
+        if ($current) {
+            // Unchecking — restore the previous status saved before Awarded
+            $previousStatus = $docs['_previous_status'] ?? 'Received';
+            unset($docs['_previous_status']);
+            $rfq->update(['documents' => $docs, 'status' => $previousStatus]);
+        } else {
+            // Checking — save current status first, then set to Awarded
+            $docs['_previous_status'] = $rfq->status;
+            $rfq->update(['documents' => $docs, 'status' => 'Awarded']);
+        }
     }
 }
 

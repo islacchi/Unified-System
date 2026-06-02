@@ -49,7 +49,7 @@
                 </div>
 
                 <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-[var(--text-2)] prime:text-gray-900 mb-1">Deadline</label>
+                    <label class="block text-sm font-medium text-gray-700 dark:text-[var(--text-2)] prime:text-gray-900 mb-1">Deadline <span class="text-red-500">*</span></label>
                     <input type="date" wire:model="deadline"
                            class="w-full border border-gray-200 dark:border-[var(--border)] prime:border-green-900 dark:bg-[var(--surface-2)] dark:text-[var(--text-1)] prime:text-gray-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[var(--accent)] prime:focus:ring-green-500">
                     @error('deadline') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
@@ -70,7 +70,7 @@
                     <select wire:model="status"
                             @disabled($rfqId && $status === 'Lost')
                             class="w-full border border-gray-200 dark:border-[var(--border)] prime:border-green-900 dark:bg-[var(--surface-2)] dark:text-[var(--text-1)] prime:text-gray-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[var(--accent)] prime:focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed">
-                        @foreach (['Received', 'Reviewing', 'Awarded', 'Lost'] as $s)
+                        @foreach (['Received', 'Reviewing', 'Lost'] as $s)
                             <option value="{{ $s }}">{{ $s }}</option>
                         @endforeach
                     </select>
