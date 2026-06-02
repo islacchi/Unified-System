@@ -234,22 +234,13 @@ class RfqForm extends Component
             }
         }
 
-        // Status can only be set to Quoted if at least one item has a unit price
-        if ($this->status === 'Quoted') {
-            $hasAnyPriced = collect($this->items)->some(fn($item) => !empty($item['unit_price']));
-            if (!$hasAnyPriced) {
-                $this->addError('status', 'Status can only be set to Quoted when at least one item has a unit price.');
-                return;
-            }
-        }
-
         // --- Validation ---
         $this->validate([
             'agency_id'                => 'required|exists:agencies,id',
             'date_received'            => 'required|date',
             'deadline'                 => 'nullable|date|after_or_equal:date_received',
             'abc'                      => 'nullable|numeric|min:0',
-            'status'                   => 'required|in:Received,Reviewing,Quoted,Awarded,Lost',
+            'status'                   => 'required|in:Received,Reviewing,Awarded,Lost',
             'notes'                    => 'nullable|string',
             'philgeps_ref'             => 'nullable|string',
             'items.*.item_description' => 'required|string',

@@ -12,7 +12,7 @@
         if (theme === 'prime') document.documentElement.classList.add('prime');
     </script>
 </head>
-<body class="bg-gray-50 text-gray-900 min-h-screen dark:bg-[#0a0a0a] dark:text-gray-100 prime:bg-white prime:text-gray-900"
+<body class="bg-gray-50 text-gray-900 min-h-screen dark:bg-[var(--surface-2)] dark:text-[var(--text-1)] prime:bg-white prime:text-gray-900"
       x-data="{
           theme: localStorage.getItem('theme') || 'light',
           cycle() {
@@ -27,24 +27,23 @@
       }">
 
     {{-- Navbar --}}
-    <nav class="bg-white dark:bg-[#111111] prime:bg-white border-b border-gray-200 dark:border-red-900 prime:border-green-200 px-6 py-0 sticky top-0 z-50 shadow-sm">
+    <nav class="bg-white dark:bg-[var(--surface)] prime:bg-white border-b border-gray-200 dark:border-[var(--border)] prime:border-green-200 px-6 py-0 sticky top-0 z-50 shadow-sm">
         <div class="max-w-7xl mx-auto flex items-center justify-between h-14">
 
             {{-- Logo --}}
             <a href="{{ route('rfqs.index') }}" class="flex items-center gap-2.5 font-bold text-base">
-                <div class="bg-gray-900 dark:bg-red-800 prime:bg-green-600 text-white rounded-lg w-7 h-7 flex items-center justify-center text-sm">💊</div>
-                <span class="text-gray-900 dark:text-red-400 prime:text-green-700">PRIMEDocs</span>
+                <div class="bg-gray-900 dark:bg-[var(--accent)] prime:bg-green-600 text-white rounded-lg w-7 h-7 flex items-center justify-center text-sm">💊</div>
+                <span class="text-gray-900 dark:text-[var(--accent)] prime:text-green-700">PRIMEDocs</span>
             </a>
 
             {{-- Nav links --}}
-         {{-- Nav links --}}
             <div class="flex items-center gap-1 text-sm" x-data="{ rfqOpen: {{ request()->is('rfqs*') || request()->is('agencies*') ? 'true' : 'false' }} }">
                 {{-- RFQ's toggle button --}}
                 <button @click="rfqOpen = !rfqOpen"
                         class="px-4 py-2 rounded-lg transition font-medium flex items-center gap-1
                             {{ request()->is('rfqs*') || request()->is('agencies*')
-                                ? 'bg-gray-900 text-white dark:bg-red-900 dark:text-gray-100 prime:bg-green-600 prime:text-white'
-                                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-[#2a2a2a] prime:text-gray-600 prime:hover:text-gray-900 prime:hover:bg-green-50' }}">
+                                ? 'bg-gray-900 text-white dark:bg-[var(--accent)] dark:text-white prime:bg-green-600 prime:text-white'
+                                : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-[var(--text-3)] dark:hover:text-[var(--text-1)] dark:hover:bg-[var(--surface-3)] prime:text-gray-600 prime:hover:text-gray-900 prime:hover:bg-green-50' }}">
                     <a href="{{ route('rfqs.index') }}" @click.stop>RFQ's</a>
                    <svg class="w-3 h-3 transition-transform duration-300" :class="rfqOpen ? 'rotate-90' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
@@ -57,8 +56,8 @@
                     <a href="{{ route('agencies.index') }}"
                        class="px-4 py-2 rounded-lg transition font-medium
                            {{ request()->is('agencies*')
-                               ? 'bg-gray-900 text-white dark:bg-red-900 dark:text-gray-100 prime:bg-green-600 prime:text-white'
-                               : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-[#2a2a2a] prime:text-gray-600 prime:hover:text-gray-900 prime:hover:bg-green-50' }}">
+                               ? 'bg-gray-900 text-white dark:bg-[var(--accent)] dark:text-white prime:bg-green-600 prime:text-white'
+                               : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-[var(--text-3)] dark:hover:text-[var(--text-1)] dark:hover:bg-[var(--surface-3)] prime:text-gray-600 prime:hover:text-gray-900 prime:hover:bg-green-50' }}">
                         Agencies
                     </a>
                 </div>
@@ -66,14 +65,14 @@
                 <a href="{{ route('cpr.index') }}"
                    class="px-4 py-2 rounded-lg transition font-medium
                        {{ request()->is('cpr*')
-                           ? 'bg-gray-900 text-white dark:bg-red-900 dark:text-gray-100 prime:bg-green-600 prime:text-white'
-                           : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-[#2a2a2a] prime:text-gray-600 prime:hover:text-gray-900 prime:hover:bg-green-50' }}">
+                           ? 'bg-gray-900 text-white dark:bg-[var(--accent)] dark:text-white prime:bg-green-600 prime:text-white'
+                           : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-[var(--text-3)] dark:hover:text-[var(--text-1)] dark:hover:bg-[var(--surface-3)] prime:text-green-700 prime:hover:text-gray-900 prime:hover:bg-green-50' }}">
                     CPR Tracker
                 </a>
 
                 {{-- Theme toggle --}}
                 <button @click="cycle()"
-                        class="ml-2 p-2 rounded-lg transition text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:text-gray-100 dark:hover:bg-[#2a2a2a] prime:text-green-700 prime:hover:bg-green-50"
+                        class="ml-2 p-2 rounded-lg transition text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-[var(--text-3)] dark:hover:text-[var(--text-1)] dark:hover:bg-[var(--surface-3)] prime:text-green-700 prime:hover:bg-green-50"
                         :title="theme === 'light' ? 'Switch to Dark' : theme === 'dark' ? 'Switch to Prime Link' : 'Switch to Light'">
                     {{-- Light mode icon: moon --}}
                     <svg x-show="theme === 'light'" style="display:none" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">

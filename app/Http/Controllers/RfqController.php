@@ -30,7 +30,7 @@ class RfqController extends Controller
             'date_received' => 'required|date',
             'deadline'      => 'required|date|after_or_equal:date_received',
             'abc'           => 'nullable|numeric|min:0',
-            'status'        => 'required|in:Received,Reviewing,Quoted,Awarded,Lost',
+            'status'        => 'required|in:Received,Reviewing,Awarded,Lost',
             'notes'         => 'nullable|string',
             'philgeps_ref'  => 'nullable|string',
         ]);
@@ -80,7 +80,7 @@ class RfqController extends Controller
             'date_received' => 'required|date',
             'deadline'      => 'required|date|after_or_equal:date_received',
             'abc'           => 'nullable|numeric|min:0',
-            'status'        => 'required|in:Received,Reviewing,Quoted,Awarded,Lost',
+            'status'        => 'required|in:Received,Reviewing,Awarded,Lost',
             'notes'         => 'nullable|string',
             'philgeps_ref'  => 'nullable|string',
         ]);

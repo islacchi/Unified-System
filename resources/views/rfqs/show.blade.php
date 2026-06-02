@@ -166,22 +166,31 @@
                 </tfoot>
             @endif
         </table>
-
-        <div x-show="totalPages > 1" class="px-6 py-3 border-t border-gray-100 dark:border-[#2a2a2a] prime:border-gray-200 flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 prime:text-gray-500">
-            <span class="text-xs" x-text="'Page ' + page + ' of ' + totalPages"></span>
-            <div class="flex gap-2">
-                <button @click="prevPage" :disabled="page <= 1"
-                        class="px-3 py-1.5 border border-gray-200 dark:border-[#2a2a2a] prime:border-green-200 dark:hover:bg-[#2a2a2a] prime:hover:bg-green-50 rounded-lg text-xs hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
-                    ← Prev
-                </button>
-                <button @click="nextPage" :disabled="page >= totalPages"
-                        class="px-3 py-1.5 border border-gray-200 dark:border-[#2a2a2a] prime:border-green-200 dark:hover:bg-[#2a2a2a] prime:hover:bg-green-50 rounded-lg text-xs hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
-                    Next →
-                </button>
-            </div>
-        </div>
+<div x-show="totalPages > 1 || true" class="px-6 py-3 border-t border-gray-100 dark:border-[#2a2a2a] prime:border-gray-200 flex items-center justify-between text-sm text-gray-500 dark:text-gray-400 prime:text-gray-500">
+    <div class="flex items-center gap-2">
+        <span class="text-xs text-gray-400 dark:text-gray-500 prime:text-gray-400">Rows</span>
+        <template x-for="size in [5, 10, 20]" :key="size">
+            <button @click="perPage = size; page = 1; applyFilter()"
+                    :class="perPage === size
+                        ? 'bg-gray-900 dark:bg-red-900 prime:bg-green-600 text-white border-transparent'
+                        : 'border-gray-200 dark:border-[#2a2a2a] prime:border-green-200 text-gray-500 dark:text-gray-400 prime:text-gray-500 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] prime:hover:bg-green-50'"
+                    class="px-2.5 py-1 border rounded-lg text-xs transition"
+                    x-text="size">
+            </button>
+        </template>
+        <span class="text-xs ml-1" x-text="'Page ' + page + ' of ' + totalPages"></span>
     </div>
-
+    <div class="flex gap-2">
+        <button @click="prevPage" :disabled="page <= 1"
+                class="px-3 py-1.5 border border-gray-200 dark:border-[#2a2a2a] prime:border-green-200 dark:hover:bg-[#2a2a2a] prime:hover:bg-green-50 rounded-lg text-xs hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
+            ← Prev
+        </button>
+        <button @click="nextPage" :disabled="page >= totalPages"
+                class="px-3 py-1.5 border border-gray-200 dark:border-[#2a2a2a] prime:border-green-200 dark:hover:bg-[#2a2a2a] prime:hover:bg-green-50 rounded-lg text-xs hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
+            Next →
+        </button>
+    </div>
+</div>
     {{-- Notes --}}
     @if ($rfq->notes)
         <div class="bg-white dark:bg-[#111111] prime:bg-white rounded-xl border border-gray-200 dark:border-red-900 prime:border-gray-200 p-6 mb-4">
