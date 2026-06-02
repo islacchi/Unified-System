@@ -312,8 +312,8 @@ class RfqForm extends Component
         if ($isOverdue) {
             // Deadline has passed — mark as Lost regardless of pricing
             $rfq->update(['status' => 'Lost']);
-        } elseif (in_array($rfq->status, ['Received', 'Quoted'])) {
-            // Auto-promote to Quoted if all items are priced, otherwise keep as Received
+        } elseif (!in_array($rfq->status, ['Awarded', 'Lost'])) {
+            // Auto-promote to Quoted if all items are priced, otherwise demote to Received
             $rfq->update(['status' => $allPriced ? 'Quoted' : 'Received']);
         }
 
