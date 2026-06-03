@@ -38,6 +38,7 @@
 
             {{-- Nav links --}}
             <div class="flex items-center gap-1 text-sm" x-data="{ rfqOpen: {{ request()->is('rfqs*') || request()->is('agencies*') ? 'true' : 'false' }} }">
+
                 {{-- RFQ's toggle button --}}
                 <button @click="rfqOpen = !rfqOpen"
                         class="px-4 py-2 rounded-lg transition font-medium flex items-center gap-1
@@ -45,7 +46,7 @@
                                 ? 'bg-gray-900 text-white dark:bg-[var(--accent)] dark:text-white prime:bg-green-600 prime:text-white'
                                 : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-[var(--text-3)] dark:hover:text-[var(--text-1)] dark:hover:bg-[var(--surface-3)] prime:text-gray-600 prime:hover:text-gray-900 prime:hover:bg-green-50' }}">
                     <a href="{{ route('rfqs.index') }}" @click.stop>RFQ's</a>
-                   <svg class="w-3 h-3 transition-transform duration-300" :class="rfqOpen ? 'rotate-90' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <svg class="w-3 h-3 transition-transform duration-300" :class="rfqOpen ? 'rotate-90' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
                     </svg>
                 </button>
@@ -62,6 +63,7 @@
                     </a>
                 </div>
 
+                {{-- CPR Tracker --}}
                 <a href="{{ route('cpr.index') }}"
                    class="px-4 py-2 rounded-lg transition font-medium
                        {{ request()->is('cpr*')
@@ -69,6 +71,17 @@
                            : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-[var(--text-3)] dark:hover:text-[var(--text-1)] dark:hover:bg-[var(--surface-3)] prime:text-green-700 prime:hover:text-gray-900 prime:hover:bg-green-50' }}">
                     CPR Tracker
                 </a>
+
+                {{-- Users — admin only --}}
+                @if(auth()->check() && auth()->user()->isAdmin())
+                    <a href="{{ route('users.index') }}"
+                       class="px-4 py-2 rounded-lg transition font-medium
+                           {{ request()->is('users*')
+                               ? 'bg-gray-900 text-white dark:bg-[var(--accent)] dark:text-white prime:bg-green-600 prime:text-white'
+                               : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-[var(--text-3)] dark:hover:text-[var(--text-1)] dark:hover:bg-[var(--surface-3)] prime:text-gray-600 prime:hover:text-gray-900 prime:hover:bg-green-50' }}">
+                        Users
+                    </a>
+                @endif
 
                 {{-- Theme toggle --}}
                 <button @click="cycle()"
@@ -87,8 +100,30 @@
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                     </svg>
                 </button>
-            </div>
 
+                {{-- User info + logout --}}
+                @auth
+                <div class="flex items-center gap-3 border-l border-gray-200 dark:border-[#2a2a2a] prime:border-green-200 pl-3 ml-3">
+                    <span class="text-xs text-gray-500 dark:text-gray-400 prime:text-gray-500">
+                        {{ auth()->user()->name }}
+                        <span class="ml-1 px-1.5 py-0.5 rounded text-xs
+                            {{ auth()->user()->isAdmin()
+                                ? 'bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400 prime:bg-green-100 prime:text-green-700'
+                                : 'bg-gray-100 text-gray-500 dark:bg-[#2a2a2a] dark:text-gray-400 prime:bg-gray-100 prime:text-gray-500' }}">
+                            {{ ucfirst(auth()->user()->role) }}
+                        </span>
+                    </span>
+                    <form method="POST" action="{{ route('logout') }}">
+                        @csrf
+                        <button type="submit"
+                                class="text-xs text-gray-500 dark:text-gray-400 prime:text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 prime:hover:text-gray-900 border border-gray-200 dark:border-[#2a2a2a] prime:border-green-200 px-3 py-1.5 rounded-lg transition">
+                            Logout
+                        </button>
+                    </form>
+                </div>
+                @endauth
+
+            </div>
         </div>
     </nav>
 

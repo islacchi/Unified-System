@@ -65,17 +65,33 @@
                     @error('abc') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                 </div>
 
-                <div>
-                    <label class="block text-sm font-medium text-gray-700 dark:text-[var(--text-2)] prime:text-gray-900 mb-1">Status <span class="text-red-500">*</span></label>
-                    <select wire:model="status"
-                            @disabled($rfqId && $status === 'Lost')
-                            class="w-full border border-gray-200 dark:border-[var(--border)] prime:border-green-900 dark:bg-[var(--surface-2)] dark:text-[var(--text-1)] prime:text-gray-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[var(--accent)] prime:focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed">
-                        @foreach (['Received', 'Reviewing', 'Lost'] as $s)
-                            <option value="{{ $s }}">{{ $s }}</option>
-                        @endforeach
-                    </select>
-                    @error('status') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
-                </div>
+<div>
+    <label class="block text-sm font-medium text-gray-700 dark:text-[var(--text-2)] prime:text-gray-900 mb-1">Status</label>
+    <div class="flex items-center gap-2 py-1">
+        @php
+            $statusColors = [
+                'Received'  => 'bg-blue-50 text-blue-800 dark:bg-blue-950 dark:text-blue-300 prime:bg-blue-50 prime:text-blue-800',
+                'Reviewing' => 'bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300 prime:bg-amber-50 prime:text-amber-800',
+                'Quoted'    => 'bg-green-50 text-green-800 dark:bg-green-950 dark:text-green-300 prime:bg-green-100 prime:text-green-800',
+                'Awarded'   => 'bg-teal-50 text-teal-800 dark:bg-teal-950 dark:text-teal-300 prime:bg-teal-50 prime:text-teal-800',
+                'Lost'      => 'bg-red-50 text-red-800 dark:bg-red-950 dark:text-red-400 prime:bg-red-50 prime:text-red-700',
+            ];
+        @endphp
+        <span class="px-2.5 py-1 rounded-full text-xs font-medium {{ $statusColors[$status] ?? 'bg-gray-100 text-gray-600' }}">
+            {{ $status }}
+        </span>
+       @if(!in_array($status, ['Lost', 'Awarded', 'Quoted']))
+            <button type="button" wire:click="toggleReviewing"
+                    class="text-xs border px-3 py-1.5 rounded-lg transition
+                        {{ $status === 'Reviewing'
+                            ? 'border-amber-200 dark:border-amber-800 prime:border-amber-300 text-amber-600 dark:text-amber-400 prime:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950 prime:hover:bg-amber-50'
+                            : 'border-gray-200 dark:border-[var(--border)] prime:border-green-200 text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500 hover:bg-gray-50 dark:hover:bg-[var(--surface-3)] prime:hover:bg-green-50' }}">
+                {{ $status === 'Reviewing' ? 'Unmark Reviewing' : 'Mark as Reviewing' }}
+            </button>
+        @endif
+    </div>
+    @error('status') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+</div>
 
                 <div>
                     <label class="block text-sm font-medium text-gray-700 dark:text-[var(--text-2)] prime:text-gray-900 mb-1">PhilGEPS Reference No.</label>
@@ -150,6 +166,7 @@
                     <tr>
                         <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-900">#</th>
                         <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-900">Item Description</th>
+                        <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-900">Brand</th>
                         <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-900">Unit</th>
                         <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-900">Qty</th>
                         <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-900">Unit Price (₱)</th>
@@ -165,13 +182,19 @@
                             <td class="px-4 py-2 text-gray-400 dark:text-[var(--text-3)] prime:text-gray-400 text-xs">
                                 {{ ($itemPage - 1) * $itemsPerPage + $loop->iteration }}
                             </td>
-
+                           
                             <td class="px-4 py-2">
                                 <input type="text" wire:model="items.{{ $index }}.item_description"
                                        placeholder="e.g. Amoxicillin 500mg Capsule"
                                        class="w-full border border-gray-200 dark:border-[var(--border)] prime:border-green-900 dark:bg-[var(--surface-2)] dark:text-[var(--text-1)] dark:placeholder-[var(--text-3)] prime:text-gray-900 prime:placeholder-green-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[var(--accent)] prime:focus:ring-green-500">
                                 @error("items.{$index}.item_description") <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                             </td>
+                             <td class="px-4 py-2">
+                                <input type="text" wire:model="items.{{ $index }}.brand"
+                                    placeholder="e.g. Biogesic"
+                                    class="w-full border border-gray-200 dark:border-[var(--border)] prime:border-green-900 dark:bg-[var(--surface-2)] dark:text-[var(--text-1)] dark:placeholder-[var(--text-3)] prime:text-gray-900 prime:placeholder-green-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[var(--accent)] prime:focus:ring-green-500">
+                            </td>
+
 
                             <td class="px-4 py-2">
                                 <input type="text" wire:model="items.{{ $index }}.unit"
@@ -215,7 +238,7 @@
 
                     @empty
                         <tr>
-                            <td colspan="7" class="px-4 py-8 text-center text-sm text-gray-400 dark:text-[var(--text-3)] prime:text-gray-400">
+                            <td colspan="8" class="px-4 py-8 text-center text-sm text-gray-400 dark:text-[var(--text-3)] prime:text-gray-400">
                                 @if ($itemSearch)
                                     No items match "<span class="font-medium">{{ $itemSearch }}</span>".
                                 @else
@@ -230,15 +253,17 @@
            <div class="px-6 py-3 border-t border-gray-100 dark:border-[var(--border)] prime:border-green-900 flex items-center justify-between text-sm text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500">
     <div class="flex items-center gap-2">
         <span class="text-xs text-gray-400 dark:text-[var(--text-3)] prime:text-gray-400">Rows</span>
-        @foreach ([5, 10, 20] as $size)
-            <button type="button" wire:click="$set('itemsPerPage', {{ $size }}); $set('itemPage', 1)"
-                    class="px-2.5 py-1 border rounded-lg text-xs transition
-                        {{ $itemsPerPage === $size
-                            ? 'bg-gray-900 dark:bg-[var(--accent)] prime:bg-green-600 text-white border-transparent'
-                            : 'border-gray-200 dark:border-[var(--border)] prime:border-green-200 text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500 hover:bg-gray-50 dark:hover:bg-[var(--surface-3)] prime:hover:bg-green-50' }}">
-                {{ $size }}
-            </button>
-        @endforeach
+       @foreach ([5, 10, 20] as $size)
+    <button type="button" wire:click="$set('itemsPerPage', {{ $size }}); $set('itemPage', 1)"
+            @disabled($totalItemCount <= ($size === 10 ? 5 : ($size === 20 ? 10 : 0)) && $itemsPerPage !== $size)
+            class="px-2.5 py-1 border rounded-lg text-xs transition
+                {{ $itemsPerPage === $size
+                    ? 'bg-gray-900 dark:bg-[var(--accent)] prime:bg-green-600 text-white border-transparent'
+                    : 'border-gray-200 dark:border-[var(--border)] prime:border-green-200 text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500 hover:bg-gray-50 dark:hover:bg-[var(--surface-3)] prime:hover:bg-green-50' }}
+                disabled:opacity-40 disabled:cursor-not-allowed">
+        {{ $size }}
+    </button>
+@endforeach
         <span class="text-xs ml-1">Page {{ $itemPage }} of {{ $totalItemPages }}</span>
     </div>
     <div class="flex gap-2">
@@ -247,11 +272,11 @@
                 class="px-3 py-1.5 border border-gray-200 dark:border-[var(--border)] prime:border-green-900 dark:hover:bg-[var(--surface-3)] prime:hover:bg-green-50 rounded-lg text-xs hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
             ← Prev
         </button>
-        <button type="button" wire:click="itemNextPage"
-                @disabled($itemPage >= $totalItemPages)
-                class="px-3 py-1.5 border border-gray-200 dark:border-[var(--border)] prime:border-green-900 dark:hover:bg-[var(--surface-3)] prime:hover:bg-green-50 rounded-lg text-xs hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
-            Next →
-        </button>
+      <button type="button" wire:click="itemNextPage"
+        @disabled($itemPage >= $totalItemPages || $totalItemCount <= $itemPage * $itemsPerPage)
+        class="px-3 py-1.5 border border-gray-200 dark:border-[var(--border)] prime:border-green-900 dark:hover:bg-[var(--surface-3)] prime:hover:bg-green-50 rounded-lg text-xs hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
+    Next →
+</button>
     </div>
 </div>
         </div>

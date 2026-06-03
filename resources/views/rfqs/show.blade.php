@@ -80,13 +80,14 @@
 
     {{-- Line Items --}}
     @php
-        $itemsJson = $rfq->items->map(fn($i) => [
-            'item_description' => $i->item_description,
-            'unit'             => $i->unit,
-            'quantity'         => $i->quantity,
-            'unit_price'       => $i->unit_price,
-            'total_price'      => $i->total_price,
-        ])->toJson();
+      $itemsJson = $rfq->items->map(fn($i) => [
+    'brand'            => $i->brand,
+    'item_description' => $i->item_description,
+    'unit'             => $i->unit,
+    'quantity'         => $i->quantity,
+    'unit_price'       => $i->unit_price,
+    'total_price'      => $i->total_price,
+])->toJson();
     @endphp
 
     <div class="bg-white dark:bg-[var(--surface)] prime:bg-white rounded-xl border border-gray-200 dark:border-[var(--border)] prime:border-gray-200 mb-4 overflow-hidden"
@@ -114,6 +115,7 @@
                 <tr>
                     <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500">#</th>
                     <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500">Item Description</th>
+                    <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500">Brand</th>
                     <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500">Unit</th>
                     <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500">Qty</th>
                     <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500">Unit Price (₱)</th>
@@ -123,7 +125,7 @@
             <tbody class="divide-y divide-gray-100 dark:divide-[var(--border)] prime:divide-gray-200">
                 <template x-if="paged.length === 0">
                     <tr>
-                        <td colspan="6" class="px-6 py-8 text-center text-sm text-gray-400 dark:text-[var(--text-3)] prime:text-gray-400">
+                        <td colspan="7" class="px-6 py-8 text-center text-sm text-gray-400 dark:text-[var(--text-3)] prime:text-gray-400">
                             <span x-show="search">No items match "<span x-text="search" class="font-medium"></span>".</span>
                             <span x-show="!search">No items added yet.</span>
                         </td>
@@ -133,6 +135,7 @@
                     <tr class="hover:bg-gray-50 dark:hover:bg-[var(--surface-2)] prime:hover:bg-green-50">
                         <td class="px-6 py-3 text-gray-400 dark:text-[var(--text-3)] prime:text-gray-400 text-xs" x-text="(page - 1) * perPage + i + 1"></td>
                         <td class="px-6 py-3 font-medium text-gray-900 dark:text-[var(--text-1)] prime:text-gray-900" x-text="item.item_description"></td>
+                        <td class="px-6 py-3 text-gray-500 dark:text-gray-400 prime:text-gray-500" x-text="item.brand || '—'"></td>
                         <td class="px-6 py-3 text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500" x-text="item.unit"></td>
                         <td class="px-6 py-3 text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500" x-text="Number(item.quantity).toLocaleString()"></td>
                         <td class="px-6 py-3 text-gray-900 dark:text-[var(--text-1)] prime:text-gray-900"
@@ -148,14 +151,14 @@
             @if ($rfq->items->count() > 0)
                 <tfoot class="bg-gray-50 dark:bg-[var(--surface-2)] prime:bg-gray-50 border-t border-gray-200 dark:border-[var(--border)] prime:border-gray-200">
                     <tr>
-                        <td colspan="5" class="px-6 py-3 text-right text-sm font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500">Total Quoted</td>
+                        <td colspan="6" class="px-6 py-3 text-right text-sm font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500">Total Quoted</td>
                         <td class="px-6 py-3 font-semibold text-gray-900 dark:text-[var(--text-1)] prime:text-gray-900">
                             ₱{{ number_format($rfq->total_quoted, 2) }}
                         </td>
                     </tr>
                     @if ($rfq->abc)
                         <tr>
-                            <td colspan="5" class="px-6 py-3 text-right text-sm font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500">ABC Remaining</td>
+                            <td colspan="6" class="px-6 py-3 text-right text-sm font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500">ABC Remaining</td>
                             @php $remaining = $rfq->abc - $rfq->total_quoted; @endphp
                             <td class="px-6 py-3 font-semibold {{ $remaining < 0 ? 'text-red-600' : 'text-green-700 dark:text-green-400 prime:text-green-700' }}">
                                 ₱{{ number_format(abs($remaining), 2) }}
@@ -169,15 +172,16 @@
 <div x-show="totalPages > 1 || true" class="px-6 py-3 border-t border-gray-100 dark:border-[var(--border)] prime:border-gray-200 flex items-center justify-between text-sm text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500">
     <div class="flex items-center gap-2">
         <span class="text-xs text-gray-400 dark:text-[var(--text-3)] prime:text-gray-400">Rows</span>
-        <template x-for="size in [5, 10, 20]" :key="size">
-            <button @click="perPage = size; page = 1; applyFilter()"
-                    :class="perPage === size
-                        ? 'bg-gray-900 dark:bg-[var(--accent)] prime:bg-green-600 text-white border-transparent'
-                        : 'border-gray-200 dark:border-[var(--border)] prime:border-gray-200 text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500 hover:bg-gray-50 dark:hover:bg-[var(--surface-3)] prime:hover:bg-green-50'"
-                    class="px-2.5 py-1 border rounded-lg text-xs transition"
-                    x-text="size">
-            </button>
-        </template>
+     <template x-for="size in [5, 10, 20]" :key="size">
+    <button @click="perPage = size; page = 1; applyFilter()"
+            :disabled="filtered.length <= (size === 10 ? 5 : size === 20 ? 10 : 0) && perPage !== size"
+            :class="perPage === size
+                ? 'bg-gray-900 dark:bg-red-900 prime:bg-green-600 text-white border-transparent'
+                : 'border-gray-200 dark:border-[#2a2a2a] prime:border-green-200 text-gray-500 dark:text-gray-400 prime:text-gray-500 hover:bg-gray-50 dark:hover:bg-[#2a2a2a] prime:hover:bg-green-50'"
+            class="px-2.5 py-1 border rounded-lg text-xs transition disabled:opacity-40 disabled:cursor-not-allowed"
+            x-text="size">
+    </button>
+</template>
         <span class="text-xs ml-1" x-text="'Page ' + page + ' of ' + totalPages"></span>
     </div>
     <div class="flex gap-2">
@@ -185,10 +189,10 @@
                 class="px-3 py-1.5 border border-gray-200 dark:border-[var(--border)] prime:border-gray-200 dark:hover:bg-[var(--surface-3)] prime:hover:bg-green-50 rounded-lg text-xs hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
             ← Prev
         </button>
-        <button @click="nextPage" :disabled="page >= totalPages"
-                class="px-3 py-1.5 border border-gray-200 dark:border-[var(--border)] prime:border-gray-200 dark:hover:bg-[var(--surface-3)] prime:hover:bg-green-50 rounded-lg text-xs hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
-            Next →
-        </button>
+      <button @click="nextPage" :disabled="page >= totalPages || paged.length < perPage"
+        class="px-3 py-1.5 border border-gray-200 dark:border-[#2a2a2a] prime:border-green-200 dark:hover:bg-[#2a2a2a] prime:hover:bg-green-50 rounded-lg text-xs hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition">
+    Next →
+</button>
     </div>
 </div>
     {{-- Notes --}}
@@ -237,11 +241,12 @@ function itemSearch(allItems) {
         applyFilter() {
             const q = this.search.toLowerCase().trim();
             this.filtered = q
-                ? this.all.filter(i =>
-                    i.item_description.toLowerCase().includes(q) ||
-                    i.unit.toLowerCase().includes(q)
-                  )
-                : [...this.all];
+    ? this.all.filter(i =>
+        i.item_description.toLowerCase().includes(q) ||
+        i.unit.toLowerCase().includes(q) ||
+        (i.brand && i.brand.toLowerCase().includes(q))
+      )
+    : [...this.all];
             this.totalPages = Math.max(1, Math.ceil(this.filtered.length / this.perPage));
             this.paginate();
         },

@@ -22,9 +22,9 @@ class RfqForm extends Component
     public string $philgeps_ref  = '';
 
     // Line items array — each entry is [item_description, unit, quantity, unit_price]
-    public array $items = [
-        ['item_description' => '', 'unit' => '', 'quantity' => '', 'unit_price' => ''],
-    ];
+   public array $items = [
+    ['brand' => '', 'item_description' => '', 'unit' => '', 'quantity' => '', 'unit_price' => ''],
+];
 
     // null = create mode, set to an ID = edit mode
     public ?int $rfqId = null;
@@ -63,12 +63,13 @@ class RfqForm extends Component
 
             // array_values() ensures clean 0-based integer keys
             // which is required for wire:model binding to work correctly
-            $this->items = array_values($rfq->items->map(fn($i) => [
-                'item_description' => $i->item_description,
-                'unit'             => $i->unit,
-                'quantity'         => (string) $i->quantity,
-                'unit_price'       => (string) ($i->unit_price ?? ''),
-            ])->toArray());
+          $this->items = array_values($rfq->items->map(fn($i) => [
+            'brand'            => $i->brand ?? '',
+            'item_description' => $i->item_description,
+            'unit'             => $i->unit,
+            'quantity'         => (string) $i->quantity,
+            'unit_price'       => (string) ($i->unit_price ?? ''),
+        ])->toArray());
         } else {
             // Create mode: default date received to today
             $this->date_received = now()->format('Y-m-d');
@@ -94,7 +95,7 @@ class RfqForm extends Component
 
         // Re-index before appending to keep keys sequential
         $this->items   = array_values($this->items);
-        $this->items[] = ['item_description' => '', 'unit' => '', 'quantity' => '', 'unit_price' => ''];
+        $this->items[] = ['brand' => '', 'item_description' => '', 'unit' => '', 'quantity' => '', 'unit_price' => ''];
 
         // Jump to the last page so the new blank row is immediately visible
         $this->itemPage = $this->totalItemPages;
@@ -217,7 +218,10 @@ class RfqForm extends Component
     {
         $this->itemPage = 1;
     }
-
+public function toggleReviewing(): void
+{
+    $this->status = $this->status === 'Reviewing' ? 'Received' : 'Reviewing';
+}
     // -------------------------------------------------------------------------
     // Save — handles both create and update
     // -------------------------------------------------------------------------
@@ -258,7 +262,7 @@ class RfqForm extends Component
             'date_received'            => 'required|date',
             'deadline'                 => 'required|date|after_or_equal:date_received',
             'abc'                      => 'nullable|numeric|min:0',
-            'status'                   => 'required|in:Received,Reviewing,Lost',
+            'status'                   => 'required|in:Received,Reviewing,Quoted,Awarded,Lost',
             'notes'                    => 'nullable|string',
             'philgeps_ref'             => 'nullable|string',
             'items.*.item_description' => 'required|string',
@@ -290,13 +294,13 @@ class RfqForm extends Component
         }
 
         // --- Re-insert line items ---
-        foreach ($this->items as $item) {
+foreach ($this->items as $item) {
             $rfq->items()->create([
+                'brand'            => $item['brand'] ?: null,
                 'item_description' => $item['item_description'],
                 'unit'             => $item['unit'],
                 'quantity'         => $item['quantity'],
                 'unit_price'       => $item['unit_price'] ?: null,
-                // Auto-calculate total price if both fields are present
                 'total_price'      => ($item['unit_price'] && $item['quantity'])
                                         ? $item['unit_price'] * $item['quantity']
                                         : null,
@@ -304,7 +308,7 @@ class RfqForm extends Component
         }
 
         // --- Auto-update status based on deadline and pricing ---
-        $allPriced = collect($this->items)->every(fn($item) => !empty($item['unit_price']));
+       $allPriced = collect($this->items)->every(fn($item) => !empty($item['unit_price']) && (float)$item['unit_price'] > 0);
 
         // Only check overdue if a deadline is set
         $isOverdue = $this->deadline && now()->startOfDay()->gt(\Carbon\Carbon::parse($this->deadline)->startOfDay());
@@ -312,11 +316,14 @@ class RfqForm extends Component
         if ($isOverdue) {
             // Deadline has passed — mark as Lost regardless of pricing
             $rfq->update(['status' => 'Lost']);
-        } elseif (!in_array($rfq->status, ['Awarded', 'Lost'])) {
-            // Auto-promote to Quoted if all items are priced, otherwise demote to Received
-            $rfq->update(['status' => $allPriced ? 'Quoted' : 'Received']);
+     } elseif (!in_array($rfq->status, ['Awarded', 'Lost'])) {
+            if ($allPriced) {
+                $rfq->update(['status' => 'Quoted']);
+            } elseif ($rfq->status !== 'Reviewing') {
+                $rfq->update(['status' => 'Received']);
+            }
+            // If Reviewing and not all priced — leave as Reviewing
         }
-
         session()->flash('message', "RFQ {$rfq->rfq_number} saved successfully.");
         $this->redirect(route('rfqs.index'));
     }

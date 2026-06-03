@@ -98,12 +98,12 @@ public function toggleDoc(int $rfqId, string $doc): void
     $current = $docs[$doc] ?? false;
 
     // Prevent checking NOA, PO, or NTP if the RFQ is Lost
-if (in_array($doc, ['notice_of_award', 'purchase_order', 'ntp']) && $rfq->status === 'Lost') {
-    $this->addError('doc_error_' . $rfqId, 'Cannot mark this document on a Lost RFQ.');
-    return;
-}
+    if (in_array($doc, ['notice_of_award', 'purchase_order', 'ntp']) && $rfq->status === 'Lost') {
+        $this->addError('doc_error_' . $rfqId, 'Cannot mark this document on a Lost RFQ.');
+        return;
+    }
 
-    // Prevent checking NOA, PO, or NTP unless ALL items have a unit price (fully quoted)
+    // Prevent checking NOA, PO, or NTP unless ALL items have a unit price
     if (in_array($doc, ['notice_of_award', 'purchase_order', 'ntp']) && !$current) {
         $allPriced = $rfq->items->every(fn($item) => !empty($item->unit_price));
         if (!$allPriced) {
@@ -112,20 +112,21 @@ if (in_array($doc, ['notice_of_award', 'purchase_order', 'ntp']) && $rfq->status
         }
     }
 
+    // Toggle the document
     $docs[$doc] = $current ? false : ['received' => true, 'date' => null];
     $rfq->update(['documents' => $docs]);
 
-    // Any of these three documents indicates the RFQ was awarded
+    // Re-evaluate status based on current state of all 3 award docs
     if (in_array($doc, ['notice_of_award', 'purchase_order', 'ntp'])) {
-        if ($current) {
-            // Unchecking — restore the previous status saved before Awarded
-            $previousStatus = $docs['_previous_status'] ?? 'Received';
-            unset($docs['_previous_status']);
-            $rfq->update(['documents' => $docs, 'status' => $previousStatus]);
+        $stillAwarded = collect(['notice_of_award', 'purchase_order', 'ntp'])
+            ->some(fn($d) => !empty($docs[$d]));
+
+        if ($stillAwarded) {
+            $rfq->update(['status' => 'Awarded']);
         } else {
-            // Checking — save current status first, then set to Awarded
-            $docs['_previous_status'] = $rfq->status;
-            $rfq->update(['documents' => $docs, 'status' => 'Awarded']);
+            // No award docs remaining — revert based on actual pricing
+            $allPriced = $rfq->items->every(fn($item) => !empty($item->unit_price));
+            $rfq->update(['status' => $allPriced ? 'Quoted' : 'Received']);
         }
     }
 }

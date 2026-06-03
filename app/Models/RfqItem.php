@@ -8,13 +8,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class RfqItem extends Model
 {
     protected $fillable = [
-        'rfq_id',
-        'item_description',
-        'unit',
-        'quantity',
-        'unit_price',
-        'total_price',
-    ];
+    'brand',
+    'rfq_id',
+    'item_description',
+    'unit',
+    'quantity',
+    'unit_price',
+    'total_price',
+];
 
     protected $casts = [
         'unit_price'  => 'decimal:2',
