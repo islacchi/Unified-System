@@ -33,12 +33,21 @@
       <tbody class="divide-y divide-gray-100 dark:divide-[#2a3042] prime:divide-green-100">
                 @foreach($users as $user)
                 <tr class="hover:bg-gray-50 dark:hover:bg-[#222736] prime:hover:bg-green-50 transition">
-                <td class="px-6 py-3 font-medium text-gray-900 dark:text-[#d8dce8] prime:text-gray-900">
-                        {{ $user->name }}
-                        @if($user->id === auth()->id())
-                            <span class="ml-2 text-xs text-gray-400 dark:text-[#5c6680] prime:text-gray-400">(you)</span>
-                        @endif
-                    </td>
+             <td class="px-6 py-3">
+                    <div class="flex items-center gap-3">
+                        <img src="{{ $user->avatarUrl() }}"
+                            alt="{{ $user->name }}"
+                            class="w-8 h-8 rounded-full object-cover ring-2 ring-gray-200 dark:ring-[#333d55] prime:ring-green-200 shrink-0">
+                        <div>
+                            <p class="font-medium text-gray-900 dark:text-gray-100 prime:text-gray-900 text-sm">
+                                {{ $user->name }}
+                                @if($user->id === auth()->id())
+                                    <span class="ml-1 text-xs text-gray-400 dark:text-gray-500 prime:text-gray-400">(you)</span>
+                                @endif
+                            </p>
+                        </div>
+                    </div>
+                </td>
                     <td class="px-6 py-3 text-gray-500 dark:text-[#8d97ae] prime:text-gray-500">{{ $user->email }}</td>
                     <td class="px-6 py-3">
                         <span class="px-2.5 py-1 rounded-full text-xs font-medium

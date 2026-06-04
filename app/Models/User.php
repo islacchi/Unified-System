@@ -22,6 +22,7 @@ protected $fillable = [
     'name',
     'email',
     'role',
+        'avatar',
     'password',
 ];
 
@@ -50,5 +51,14 @@ protected $fillable = [
     public function isAdmin(): bool
 {
     return $this->role === 'admin';
+}
+public function avatarUrl(): string
+{
+    if ($this->avatar) {
+        return asset('storage/' . $this->avatar);
+    }
+
+    // Generate initials avatar URL using UI Avatars
+    return 'https://ui-avatars.com/api/?name=' . urlencode($this->name) . '&background=1a1f2e&color=fff&size=128&bold=true';
 }
 }

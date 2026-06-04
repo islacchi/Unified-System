@@ -14,7 +14,7 @@
 
     <div class="bg-white dark:bg-[#1a1f2e] prime:bg-white border border-gray-200 dark:border-[#333d55] prime:border-green-200 rounded-xl p-6">
 
-        <form method="POST" action="{{ route('users.store') }}" class="space-y-4" autocomplete="off">
+        <form method="POST" action="{{ route('users.store') }}" class="space-y-4" autocomplete="off" enctype="multipart/form-data">
             @csrf
 
             <div>
@@ -39,6 +39,15 @@
                     <option value="admin" {{ old('role') === 'admin' ? 'selected' : '' }}>Admin</option>
                 </select>
                 @error('role') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+            </div>
+            <div>
+                <label class="block text-xs font-semibold text-gray-400 dark:text-gray-500 prime:text-gray-400 uppercase tracking-wide mb-1.5">
+                    Profile Picture <span class="font-normal normal-case">(optional)</span>
+                </label>
+                <input type="file" name="avatar" accept="image/*"
+                    class="w-full px-3 py-2 text-sm rounded-lg border border-gray-200 dark:border-[#333d55] prime:border-green-200 bg-gray-50 dark:bg-[#222736] prime:bg-white text-gray-900 dark:text-gray-100 prime:text-gray-900 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-red-500 prime:focus:ring-green-500 transition
+                    file:mr-3 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-medium file:bg-gray-900 file:text-white dark:file:bg-blue-600 prime:file:bg-green-600 file:cursor-pointer">
+                @error('avatar') <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
             </div>
 
             <div>

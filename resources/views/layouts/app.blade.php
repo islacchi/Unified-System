@@ -87,27 +87,28 @@
                 <button @click="cycle()"
                         class="ml-2 p-2 rounded-lg transition text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-[var(--text-3)] dark:hover:text-[var(--text-1)] dark:hover:bg-[var(--surface-3)] prime:text-green-700 prime:hover:bg-green-50"
                         :title="theme === 'light' ? 'Switch to Dark' : theme === 'dark' ? 'Switch to Prime Link' : 'Switch to Light'">
-                    {{-- Light mode icon: moon --}}
                     <svg x-show="theme === 'light'" style="display:none" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
                     </svg>
-                    {{-- Dark mode icon: sun --}}
                     <svg x-show="theme === 'dark'" style="display:none" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m8.66-9h-1M4.34 12h-1m15.07-6.07l-.71.71M6.34 17.66l-.71.71m12.02 0l-.71-.71M6.34 6.34l-.71-.71M12 5a7 7 0 100 14A7 7 0 0012 5z"/>
                     </svg>
-                    {{-- Prime mode icon: heart --}}
                     <svg x-show="theme === 'prime'" style="display:none" xmlns="http://www.w3.org/2000/svg" class="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"/>
                     </svg>
                 </button>
 
-                {{-- User dropdown toggle --}}
+                {{-- User dropdown --}}
                 @auth
                 <div class="relative border-l border-gray-200 dark:border-[#2a2a2a] prime:border-green-200 pl-3 ml-3"
                      x-data="{ open: false }" @click.outside="open = false">
+
                     {{-- Trigger button --}}
                     <button @click="open = !open"
-                            class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 prime:text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 prime:hover:text-gray-900 px-3 py-1.5 border border-gray-200 dark:border-[#2a2a2a] prime:border-green-200 rounded-lg transition">
+                            class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 prime:text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 prime:hover:text-gray-900 px-2 py-1.5 border border-gray-200 dark:border-[#2a2a2a] prime:border-green-200 rounded-lg transition">
+                        <img src="{{ auth()->user()->avatarUrl() }}"
+                             alt="{{ auth()->user()->name }}"
+                             class="w-6 h-6 rounded-full object-cover ring-1 ring-gray-200 dark:ring-[#333d55] prime:ring-green-200">
                         <span>{{ auth()->user()->name }}</span>
                         <svg class="w-3 h-3 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
@@ -123,20 +124,27 @@
                          x-transition:leave-start="opacity-100 translate-y-0"
                          x-transition:leave-end="opacity-0 -translate-y-1"
                          style="display:none"
-                         class="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-[var(--surface)] prime:bg-white rounded-xl border border-gray-200 dark:border-[var(--border)] prime:border-green-200 shadow-lg overflow-hidden z-50">
+                         class="absolute right-0 top-full mt-2 w-52 bg-white dark:bg-[var(--surface)] prime:bg-white rounded-xl border border-gray-200 dark:border-[var(--border)] prime:border-green-200 shadow-lg overflow-hidden z-50">
 
                         {{-- Header --}}
                         <div class="px-4 py-3 border-b border-gray-100 dark:border-[var(--border)] prime:border-green-100">
-                            <div class="flex items-center justify-between mb-0.5">
-                                <p class="text-xs font-medium text-gray-900 dark:text-[var(--text-1)] prime:text-gray-900">{{ auth()->user()->name }}</p>
-                                <span class="px-1.5 py-0.5 rounded text-xs font-medium
-                                    {{ auth()->user()->isAdmin()
-                                        ? 'bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400 prime:bg-green-100 prime:text-green-700'
-                                        : 'bg-gray-100 text-gray-500 dark:bg-[#2a2a2a] dark:text-gray-400 prime:bg-gray-100 prime:text-gray-500' }}">
-                                    {{ ucfirst(auth()->user()->role) }}
-                                </span>
+                            <div class="flex items-center gap-3 mb-2">
+                                <img src="{{ auth()->user()->avatarUrl() }}"
+                                     alt="{{ auth()->user()->name }}"
+                                     class="w-9 h-9 rounded-full object-cover ring-2 ring-gray-200 dark:ring-[#333d55] prime:ring-green-200 shrink-0">
+                                <div class="min-w-0">
+                                    <div class="flex items-center gap-1.5">
+                                        <p class="text-xs font-medium text-gray-900 dark:text-[var(--text-1)] prime:text-gray-900 truncate">{{ auth()->user()->name }}</p>
+                                        <span class="shrink-0 px-1.5 py-0.5 rounded text-xs font-medium
+                                            {{ auth()->user()->isAdmin()
+                                                ? 'bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400 prime:bg-green-100 prime:text-green-700'
+                                                : 'bg-gray-100 text-gray-500 dark:bg-[#2a2a2a] dark:text-gray-400 prime:bg-gray-100 prime:text-gray-500' }}">
+                                            {{ ucfirst(auth()->user()->role) }}
+                                        </span>
+                                    </div>
+                                    <p class="text-xs text-gray-400 dark:text-[var(--text-3)] prime:text-gray-400 truncate mt-0.5">{{ auth()->user()->email }}</p>
+                                </div>
                             </div>
-                            <p class="text-xs text-gray-400 dark:text-[var(--text-3)] prime:text-gray-400 truncate">{{ auth()->user()->email }}</p>
                         </div>
 
                         {{-- Links --}}
