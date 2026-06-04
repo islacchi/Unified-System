@@ -14,32 +14,32 @@
             <p class="text-sm text-gray-500 dark:text-gray-400 prime:text-gray-500 mt-0.5">Manage system users and roles</p>
         </div>
         <a href="{{ route('users.create') }}"
-           class="text-sm bg-gray-900 hover:bg-gray-800 dark:bg-red-600 dark:hover:bg-red-700 prime:bg-green-600 prime:hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg transition">
+           class="text-sm bg-gray-900 hover:bg-gray-800 bg-gray-800 dark:bg-[var(--accent)] dark:hover:bg-[var(--accent-h)] prime:bg-green-600 prime:hover:bg-green-700 text-white font-medium px-4 py-2 rounded-lg transition">
             + Add User
         </a>
     </div>
 
-    <div class="bg-white dark:bg-[#111111] prime:bg-white rounded-xl border border-gray-200 dark:border-red-900 prime:border-green-200 overflow-hidden">
+<div class="bg-white dark:bg-[#1a1f2e] prime:bg-white rounded-xl border border-gray-200 dark:border-[#333d55] prime:border-green-200 overflow-hidden">
         <table class="w-full text-sm">
-            <thead class="bg-gray-50 dark:bg-[#1a1a1a] prime:bg-gray-50 border-b border-gray-200 dark:border-red-900 prime:border-green-200">
+            <thead class="bg-gray-50 dark:bg-[#161b27] prime:bg-gray-50 border-b border-gray-200 dark:border-[#333d55] prime:border-green-200">
                 <tr>
-                    <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 prime:text-gray-500">Name</th>
-                    <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 prime:text-gray-500">Email</th>
-                    <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 prime:text-gray-500">Role</th>
-                    <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 dark:text-gray-400 prime:text-gray-500">Joined</th>
+             <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 dark:text-[#8d97ae] prime:text-gray-500">Name</th>
+                    <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 dark:text-[#8d97ae] prime:text-gray-500">Email</th>
+                    <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 dark:text-[#8d97ae] prime:text-gray-500">Role</th>
+                    <th class="text-left px-6 py-3 text-xs font-medium text-gray-500 dark:text-[#8d97ae] prime:text-gray-500">Joined</th>
                     <th class="px-6 py-3"></th>
                 </tr>
             </thead>
-            <tbody class="divide-y divide-gray-100 dark:divide-[#2a2a2a] prime:divide-green-100">
+      <tbody class="divide-y divide-gray-100 dark:divide-[#2a3042] prime:divide-green-100">
                 @foreach($users as $user)
-                <tr class="hover:bg-gray-50 dark:hover:bg-[#1a1a1a] prime:hover:bg-green-50 transition">
-                    <td class="px-6 py-3 font-medium text-gray-900 dark:text-gray-100 prime:text-gray-900">
+                <tr class="hover:bg-gray-50 dark:hover:bg-[#222736] prime:hover:bg-green-50 transition">
+                <td class="px-6 py-3 font-medium text-gray-900 dark:text-[#d8dce8] prime:text-gray-900">
                         {{ $user->name }}
                         @if($user->id === auth()->id())
-                            <span class="ml-2 text-xs text-gray-400 dark:text-gray-500 prime:text-gray-400">(you)</span>
+                            <span class="ml-2 text-xs text-gray-400 dark:text-[#5c6680] prime:text-gray-400">(you)</span>
                         @endif
                     </td>
-                    <td class="px-6 py-3 text-gray-500 dark:text-gray-400 prime:text-gray-500">{{ $user->email }}</td>
+                    <td class="px-6 py-3 text-gray-500 dark:text-[#8d97ae] prime:text-gray-500">{{ $user->email }}</td>
                     <td class="px-6 py-3">
                         <span class="px-2.5 py-1 rounded-full text-xs font-medium
                             {{ $user->role === 'admin'
@@ -48,16 +48,16 @@
                             {{ ucfirst($user->role) }}
                         </span>
                     </td>
-                    <td class="px-6 py-3 text-gray-500 dark:text-gray-400 prime:text-gray-500 text-xs">
+                    <td class="px-6 py-3 text-gray-500 dark:text-[#8d97ae] prime:text-gray-500 text-xs">
                         {{ $user->created_at->format('M d, Y') }}
                     </td>
                     <td class="px-6 py-3 text-right">
                         <div class="flex items-center justify-end gap-2">
-                            <a href="{{ route('users.edit', $user) }}"
-                               class="text-xs border border-gray-200 dark:border-[#2a2a2a] prime:border-green-200 text-gray-500 dark:text-gray-400 prime:text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 prime:hover:text-gray-900 hover:border-gray-400 dark:hover:border-red-700 prime:hover:border-green-400 px-3 py-1.5 rounded-lg transition">
-                                Edit
-                            </a>
                             @if($user->id !== auth()->id())
+                                <a href="{{ route('users.edit', $user) }}"
+                                  class="text-xs border border-gray-200 dark:border-[#333d55] prime:border-green-200 text-gray-500 dark:text-[#8d97ae] prime:text-gray-500 hover:text-gray-900 dark:hover:text-[#d8dce8] prime:hover:text-gray-900 hover:border-gray-400 dark:hover:border-[#5b8dee] prime:hover:border-green-400 px-3 py-1.5 rounded-lg transition">
+                                    Edit
+                                </a>
                                 <form action="{{ route('users.destroy', $user) }}" method="POST"
                                       onsubmit="return confirm('Delete {{ $user->name }}?')">
                                     @csrf

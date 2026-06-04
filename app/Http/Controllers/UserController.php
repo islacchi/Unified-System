@@ -10,7 +10,7 @@ class UserController extends Controller
 {
     public function index()
     {
-        $users = User::orderBy('name')->get();
+        $users = User::orderByRaw("role = 'admin' DESC")->orderBy('name')->get();
         return view('users.index', compact('users'));
     }
 
@@ -71,6 +71,46 @@ public function update(Request $request, User $user)
     return redirect()->route('users.index')
         ->with('message', "{$user->name}'s account updated successfully.");
 }
+
+    /**
+     * Show the profile editor for the authenticated user.
+     */
+    public function profileEdit()
+    {
+        $user = auth()->user();
+        return view('profile.edit', compact('user'));
+    }
+
+    /**
+     * Update the authenticated user's own profile (name, email, password).
+     */
+    public function profileUpdate(Request $request)
+    {
+        $user = auth()->user();
+
+        $rules = [
+            'name'  => 'required|string|max:255',
+            'email' => 'required|email|unique:users,email,' . $user->id,
+        ];
+
+        if ($request->filled('password')) {
+            $rules['password'] = 'min:8|confirmed';
+        }
+
+        $data = $request->validate($rules);
+
+        $user->name  = $data['name'];
+        $user->email = $data['email'];
+
+        if ($request->filled('password')) {
+            $user->password = Hash::make($request->password);
+        }
+
+        $user->save();
+
+        return redirect()->route('profile.edit')
+            ->with('message', 'Profile updated successfully.');
+    }
 
     public function destroy(User $user)
     {

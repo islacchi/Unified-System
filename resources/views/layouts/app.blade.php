@@ -101,25 +101,57 @@
                     </svg>
                 </button>
 
-                {{-- User info + logout --}}
+                {{-- User dropdown toggle --}}
                 @auth
-                <div class="flex items-center gap-3 border-l border-gray-200 dark:border-[#2a2a2a] prime:border-green-200 pl-3 ml-3">
-                    <span class="text-xs text-gray-500 dark:text-gray-400 prime:text-gray-500">
-                        {{ auth()->user()->name }}
-                        <span class="ml-1 px-1.5 py-0.5 rounded text-xs
-                            {{ auth()->user()->isAdmin()
-                                ? 'bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400 prime:bg-green-100 prime:text-green-700'
-                                : 'bg-gray-100 text-gray-500 dark:bg-[#2a2a2a] dark:text-gray-400 prime:bg-gray-100 prime:text-gray-500' }}">
-                            {{ ucfirst(auth()->user()->role) }}
-                        </span>
-                    </span>
-                    <form method="POST" action="{{ route('logout') }}">
-                        @csrf
-                        <button type="submit"
-                                class="text-xs text-gray-500 dark:text-gray-400 prime:text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 prime:hover:text-gray-900 border border-gray-200 dark:border-[#2a2a2a] prime:border-green-200 px-3 py-1.5 rounded-lg transition">
-                            Logout
-                        </button>
-                    </form>
+                <div class="relative border-l border-gray-200 dark:border-[#2a2a2a] prime:border-green-200 pl-3 ml-3"
+                     x-data="{ open: false }" @click.outside="open = false">
+                    {{-- Trigger button --}}
+                    <button @click="open = !open"
+                            class="flex items-center gap-2 text-xs text-gray-500 dark:text-gray-400 prime:text-gray-500 hover:text-gray-900 dark:hover:text-gray-100 prime:hover:text-gray-900 px-3 py-1.5 border border-gray-200 dark:border-[#2a2a2a] prime:border-green-200 rounded-lg transition">
+                        <span>{{ auth()->user()->name }}</span>
+                        <svg class="w-3 h-3 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                        </svg>
+                    </button>
+
+                    {{-- Dropdown panel --}}
+                    <div x-show="open"
+                         x-transition:enter="transition ease-out duration-150"
+                         x-transition:enter-start="opacity-0 -translate-y-1"
+                         x-transition:enter-end="opacity-100 translate-y-0"
+                         x-transition:leave="transition ease-in duration-100"
+                         x-transition:leave-start="opacity-100 translate-y-0"
+                         x-transition:leave-end="opacity-0 -translate-y-1"
+                         style="display:none"
+                         class="absolute right-0 top-full mt-2 w-48 bg-white dark:bg-[var(--surface)] prime:bg-white rounded-xl border border-gray-200 dark:border-[var(--border)] prime:border-green-200 shadow-lg overflow-hidden z-50">
+
+                        {{-- Header --}}
+                        <div class="px-4 py-3 border-b border-gray-100 dark:border-[var(--border)] prime:border-green-100">
+                            <div class="flex items-center justify-between mb-0.5">
+                                <p class="text-xs font-medium text-gray-900 dark:text-[var(--text-1)] prime:text-gray-900">{{ auth()->user()->name }}</p>
+                                <span class="px-1.5 py-0.5 rounded text-xs font-medium
+                                    {{ auth()->user()->isAdmin()
+                                        ? 'bg-red-50 text-red-600 dark:bg-red-950 dark:text-red-400 prime:bg-green-100 prime:text-green-700'
+                                        : 'bg-gray-100 text-gray-500 dark:bg-[#2a2a2a] dark:text-gray-400 prime:bg-gray-100 prime:text-gray-500' }}">
+                                    {{ ucfirst(auth()->user()->role) }}
+                                </span>
+                            </div>
+                            <p class="text-xs text-gray-400 dark:text-[var(--text-3)] prime:text-gray-400 truncate">{{ auth()->user()->email }}</p>
+                        </div>
+
+                        {{-- Links --}}
+                        <a href="{{ route('profile.edit') }}" @click="open = false"
+                           class="block px-4 py-2.5 text-sm text-gray-700 dark:text-[var(--text-2)] prime:text-gray-700 hover:bg-gray-50 dark:hover:bg-[var(--surface-3)] prime:hover:bg-green-50 transition">
+                            Edit Profile
+                        </a>
+                        <form method="POST" action="{{ route('logout') }}">
+                            @csrf
+                            <button type="submit"
+                                    class="w-full text-left px-4 py-2.5 text-sm text-red-600 dark:text-red-400 prime:text-red-500 hover:bg-red-50 dark:hover:bg-red-950 prime:hover:bg-red-50 transition">
+                                Logout
+                            </button>
+                        </form>
+                    </div>
                 </div>
                 @endauth
 
