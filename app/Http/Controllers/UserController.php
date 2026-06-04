@@ -133,7 +133,7 @@ class UserController extends Controller
 
         $user->save();
 
-        return redirect()->route('profile.edit')
+        return redirect()->back()
             ->with('message', 'Profile updated successfully.');
     }
 
