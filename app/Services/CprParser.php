@@ -9,22 +9,30 @@ class CprParser
 {
     public function parse(string $filePath): array
     {
+        $t0 = microtime(true);
         try {
+            $t1 = microtime(true);
             $text = $this->extractTextFromPdf($filePath);
-            \Log::info('Text length: ' . strlen(trim($text)) . ' | File: ' . basename($filePath));
+            $t2 = microtime(true);
+            \Log::info('[CPR TIMER] extractTextFromPdf: ' . round($t2 - $t1, 3) . 's | Text length: ' . strlen(trim($text)) . ' | File: ' . basename($filePath));
 
             $hasUsefulText = strlen(trim($text)) >= 50
                 && preg_match('/Brand\s*Name|Registration\s*Number/i', $text);
 
             if (!$hasUsefulText) {
+                $t3 = microtime(true);
                 $text = $this->extractTextWithOcr($filePath);
+                $t4 = microtime(true);
+                \Log::info('[CPR TIMER] extractTextWithOcr: ' . round($t4 - $t3, 3) . 's | File: ' . basename($filePath));
             }
 
             if (empty(trim($text))) {
+                \Log::info('[CPR TIMER] parse total: ' . round(microtime(true) - $t0, 3) . 's (empty text) | File: ' . basename($filePath));
                 return $this->errorResult();
             }
 
-            return [
+            $t5 = microtime(true);
+            $result = [
                 'registration_number' => $this->extractRegistrationNumber($text),
                 'generic_name'        => $this->extractGenericName($text),
                 'brand_name'          => $this->extractBrandName($text),
@@ -32,8 +40,13 @@ class CprParser
                 'status'              => 'Unknown',
                 'days_remaining'      => null,
             ];
+            $t6 = microtime(true);
+            \Log::info('[CPR TIMER] field extraction: ' . round($t6 - $t5, 3) . 's | parse total: ' . round($t6 - $t0, 3) . 's | File: ' . basename($filePath));
+
+            return $result;
 
         } catch (\Exception $e) {
+            \Log::info('[CPR TIMER] parse FAILED: ' . round(microtime(true) - $t0, 3) . 's | File: ' . basename($filePath) . ' | Error: ' . $e->getMessage());
             return $this->errorResult();
         }
     }

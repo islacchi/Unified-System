@@ -78,24 +78,38 @@ class CprScanService
      */
     public function runScan(string $folderPath, bool $forceRescan = false): array
     {
+        $t0 = microtime(true);
         set_time_limit(0);
         ini_set('memory_limit', '512M');
 
+        $t1 = microtime(true);
         $files = glob($folderPath . DIRECTORY_SEPARATOR . '*.pdf') ?: [];
+        $t2 = microtime(true);
+        \Log::info('[CPR TIMER] glob: ' . round($t2 - $t1, 3) . 's | ' . count($files) . ' files | Folder: ' . basename($folderPath));
 
         if ($forceRescan) {
             CprRecord::whereIn('filename', collect($files)->map(fn($f) => basename($f))->toArray())->delete();
         }
 $filenames = collect($files)->map(fn($f) => basename($f))->toArray();
 
+$t3 = microtime(true);
 $existingRecords = CprRecord::whereIn('filename', $filenames)
     ->get()
     ->keyBy('filename');
+        $t4 = microtime(true);
+        \Log::info('[CPR TIMER] DB fetch existing: ' . round($t4 - $t3, 3) . 's | ' . $existingRecords->count() . ' records');
+
+        $t5 = microtime(true);
         [$rowsToUpsert, $filesToParse, $duplicates, $fromDb] = $this->classifyFiles(
             $files, $existingRecords, $folderPath
         );
+        $t6 = microtime(true);
+        \Log::info('[CPR TIMER] classifyFiles: ' . round($t6 - $t5, 3) . 's | toParse: ' . count($filesToParse) . ' | fromDb: ' . $fromDb);
 
+        $t7 = microtime(true);
         $parsedResults = $this->parseFiles($filesToParse);
+        $t8 = microtime(true);
+        \Log::info('[CPR TIMER] parseFiles: ' . round($t8 - $t7, 3) . 's | ' . count($filesToParse) . ' files');
 
         [$newRows, $fromPdf] = $this->buildUpsertRows(
             $filesToParse, $parsedResults, $existingRecords, $folderPath
@@ -104,10 +118,18 @@ $existingRecords = CprRecord::whereIn('filename', $filenames)
         $rowsToUpsert = array_merge($rowsToUpsert, $newRows);
 
         if (!empty($rowsToUpsert)) {
+            $t9 = microtime(true);
             $this->upsertChunked($rowsToUpsert);
+            $t10 = microtime(true);
+            \Log::info('[CPR TIMER] upsertChunked: ' . round($t10 - $t9, 3) . 's | ' . count($rowsToUpsert) . ' rows');
         }
 
+        $t11 = microtime(true);
         $this->storeSessionSummary($folderPath, $fromDb, $fromPdf, $duplicates);
+        $t12 = microtime(true);
+        \Log::info('[CPR TIMER] storeSessionSummary: ' . round($t12 - $t11, 3) . 's');
+
+        \Log::info('[CPR TIMER] runScan TOTAL: ' . round($t12 - $t0, 3) . 's | Folder: ' . basename($folderPath));
 
         return [$fromDb, $fromPdf];
     }
@@ -397,6 +419,11 @@ $existingRecords = CprRecord::whereIn('filename', $filenames)
     {
         if (empty($files)) {
             return [];
+        }
+
+        // Small batches: parse inline to avoid proc_open + Laravel bootstrap overhead
+        if (count($files) <= 5) {
+            return $this->parseFilesSequential($files);
         }
 
         if (self::PARSE_CONCURRENCY <= 1 || !function_exists('proc_open')) {
