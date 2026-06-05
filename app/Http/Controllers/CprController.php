@@ -25,6 +25,13 @@ class CprController extends Controller
         return view('cpr.index', CprScanService::emptyViewData());
     }
 
+    public function dismissModal()
+    {
+        session(['cpr_modal_dismissed' => true]);
+        session()->forget('scan_duplicates');
+        return response()->json(['ok' => true]);
+    }
+
     // ── Scan ─────────────────────────────────────────────────────────────────
 
     public function scan(CprScanRequest $request)
@@ -46,6 +53,7 @@ class CprController extends Controller
         }
 
         session(['last_folder_path' => $folderPath]);
+        session()->forget('cpr_modal_dismissed');
 
         $isPagination = $request->isPagination();
         $perPage      = (int) $request->input('per_page', 10);

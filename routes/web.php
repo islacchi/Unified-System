@@ -40,6 +40,7 @@ Route::middleware('auth')->group(function () {
     // ── CPR Tracker routes ────────────────────────────────────────────────────
     Route::get('/cpr',              [CprController::class, 'index'])->name('cpr.index');
     Route::post('/cpr/scan',        [CprController::class, 'scan'])->name('cpr.scan');
+    Route::post('/cpr/dismiss-modal', [CprController::class, 'dismissModal'])->name('cpr.dismissModal');
     Route::get('/cpr/open-pdf',     [CprController::class, 'openPdf'])->name('cpr.open');
     Route::get('/cpr/cancel',       [CprController::class, 'cancelEdit'])->name('cpr.edit.cancel');
     Route::get('/cpr/edit/{id}',    [CprController::class, 'edit'])->name('cpr.edit');

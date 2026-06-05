@@ -773,7 +773,7 @@
             }, 2500);
             if (!folderPath) return;
             if (sseSource) { sseSource.close(); sseSource = null; }
-            sseSource = new EventSource(`/cpr/progress?folder_path=${encodeURIComponent(folderPath)}`);
+           sseSource = new EventSource(`/cpr/progress?folder_path=${encodeURIComponent(folderPath)}`);
             sseSource.onmessage = function (e) {
                 const data = JSON.parse(e.data);
                 document.getElementById('loading-msg').textContent = data.msg;
@@ -830,6 +830,7 @@
         function closeDuplicatesModal() {
             const modal = document.getElementById('duplicates-modal');
             if (modal) { modal.style.opacity = '0'; modal.style.transition = 'opacity 0.2s'; setTimeout(() => modal.remove(), 200); }
+            fetch('{{ route("cpr.dismissModal") }}', { method: 'POST', headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}', 'Content-Type': 'application/json', 'Accept': 'application/json' } });
         }
         function showRescanConfirm() {
             document.getElementById('modal-footer-default').style.display = 'none';
