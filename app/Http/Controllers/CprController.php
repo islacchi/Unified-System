@@ -261,8 +261,7 @@ class CprController extends Controller
      */
     public function progress(Request $request)
     {
-        $folderPath  = $request->input('folder_path');
-        $sessionPath = session('last_folder_path');
+        $folderPath = $request->input('folder_path');
 
         header('Content-Type: text/event-stream');
         header('Cache-Control: no-cache');
@@ -270,13 +269,7 @@ class CprController extends Controller
 
         $send = fn(array $payload) => print("data: " . json_encode($payload) . "\n\n") && ob_flush() && flush();
 
-        if (!$folderPath || $folderPath !== $sessionPath) {
-            $send(['msg' => 'Invalid folder path.', 'done' => true]);
-            return;
-        }
-
-        $validationError = $this->scanService->validateFolder($folderPath);
-        if ($validationError) {
+        if (!$folderPath || !is_dir($folderPath) || !is_readable($folderPath)) {
             $send(['msg' => 'Folder not accessible.', 'done' => true]);
             return;
         }

@@ -792,14 +792,38 @@
             setTimeout(() => { document.getElementById('loading-overlay').style.display = 'none'; }, 400);
         }
 
-        window.addEventListener('load', hideLoading);
+        /* ── Scan form: submit via AJAX so SSE can stream progress ── */
+        document.getElementById('scan-form').addEventListener('submit', function (e) {
+            e.preventDefault();
 
-        document.querySelectorAll('form').forEach(form => {
-            form.addEventListener('submit', function () {
-                if (this.id === 'scan-form') {
-                    const folderInput = document.querySelector('#scan-form input[name="folder_path"]');
-                    showLoading(folderInput ? folderInput.value.trim() : null);
+            const form     = this;
+            const folderInput = form.querySelector('input[name="folder_path"]');
+            const folderPath  = folderInput ? folderInput.value.trim() : null;
+
+            if (!folderPath) { form.submit(); return; }
+
+            showLoading(folderPath);
+
+            const formData = new FormData(form);
+
+            fetch(form.action, {
+                method: 'POST',
+                body:   formData,
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            })
+            .then(response => {
+                if (response.redirected) {
+                    window.location.href = response.url;
+                } else if (response.ok) {
+                    window.location.href = '{{ route("cpr.results") }}';
+                } else {
+                    hideLoading();
+                    alert('Scan failed. Please try again.');
                 }
+            })
+            .catch(() => {
+                hideLoading();
+                alert('Network error. Please check your connection and try again.');
             });
         });
 
