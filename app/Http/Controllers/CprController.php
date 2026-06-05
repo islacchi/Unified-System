@@ -29,6 +29,7 @@ class CprController extends Controller
 
     public function scan(CprScanRequest $request)
     {
+        $tScanStart = microtime(true);
         $folderPath = $this->resolveFolderPath($request);
 
         if (!$folderPath) {
@@ -96,6 +97,9 @@ class CprController extends Controller
             'cpr_page'     => $page,
         ]);
 
+        $tScanEnd = microtime(true);
+        \Log::info('[CPR TIMER] controller scan total: ' . round($tScanEnd - $tScanStart, 3) . 's | Folder: ' . basename($folderPath));
+
         return redirect()->route('cpr.results', [
             'page'          => $page,
             'per_page'      => $perPage,
@@ -113,6 +117,7 @@ class CprController extends Controller
      */
     public function results(Request $request)
     {
+        $tResultsStart = microtime(true);
         $folderPath = session('last_folder_path');
 
         if (!$folderPath) {
@@ -126,6 +131,9 @@ class CprController extends Controller
 
         [$records, $total, $lastPage] = $this->scanService->paginateResults($folderPath, $page, $perPage, $filterStatus, $search);
         $counts = $this->scanService->summaryCounts($folderPath,$search);
+
+        $tResultsEnd = microtime(true);
+        \Log::info('[CPR TIMER] controller results total: ' . round($tResultsEnd - $tResultsStart, 3) . 's | Folder: ' . basename($folderPath ?? 'none'));
 
         return view('cpr.index', [
             'results'             => $records,
