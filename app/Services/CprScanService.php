@@ -26,7 +26,7 @@ class CprScanService
      * How many PDFs to parse in parallel via proc_open.
      * Set to 1 to force sequential parsing (useful for debugging).
      */
-    private const PARSE_CONCURRENCY = 4;
+    private const PARSE_CONCURRENCY = 8;
 
     /**
      * Paths that must never be scanned regardless of what the user submits.
@@ -336,8 +336,8 @@ $existingRecords = CprRecord::whereIn('filename', $filenames)
      */
     private function upsertChunked(array $rows): void
     {
-        DB::transaction(function () use ($rows) {
-            foreach (array_chunk($rows, 100) as $chunk) {
+        foreach (array_chunk($rows, 100) as $chunk) {
+            DB::transaction(function () use ($chunk) {
                 DB::table('cpr_records')->upsert(
                     $chunk,
                     ['filename'],
@@ -347,8 +347,8 @@ $existingRecords = CprRecord::whereIn('filename', $filenames)
                         'days_remaining', 'status', 'updated_at',
                     ]
                 );
-            }
-        });
+            });
+        }
     }
 
     /**
