@@ -5,12 +5,23 @@ namespace App\Livewire;
 use App\Models\Message;
 use App\Models\User;
 use Livewire\Component;
+use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Storage;
 
 class ChatBox extends Component
 {
+    use WithFileUploads;
+
     public bool $open = false;
     public ?int $receiverId = null;
     public string $body = '';
+    public $file = null;
+    public string $search = '';
+
+    protected $rules = [
+        'body' => 'nullable|string|max:1000',
+        'file' => 'nullable|file|mimes:jpg,jpeg,png,gif,webp,pdf,doc,docx,xls,xlsx,txt|max:10240',
+    ];
 
     public function getListeners(): array
     {
@@ -29,32 +40,58 @@ class ChatBox extends Component
     public function setReceiver(?int $userId)
     {
         $this->receiverId = $userId;
+        $this->search = '';
     }
 
     public function sendMessage()
     {
-        $this->validate(['body' => 'required|string|max:1000']);
+        $this->validate();
+
+        if (empty($this->body) && !$this->file) {
+            return;
+        }
+
+        $filePath = null;
+        $fileType = null;
+        $fileName = null;
+
+        if ($this->file) {
+            $filePath = $this->file->store('chat', 'public');
+            $fileType = $this->file->getMimeType();
+            $fileName = $this->file->getClientOriginalName();
+        }
 
         Message::create([
             'sender_id'   => auth()->id(),
             'receiver_id' => $this->receiverId,
-            'body'        => $this->body,
+            'body'        => $this->body ?? '',
+            'file_path'   => $filePath,
+            'file_type'   => $fileType,
+            'file_name'   => $fileName,
         ]);
 
         $this->body = '';
+        $this->file = null;
         $this->dispatch('$refresh');
         $this->dispatch('chat-sent');
     }
 
+    public function deleteMessage(int $messageId)
+    {
+        $message = Message::find($messageId);
+        if (!$message || !$message->canDelete()) return;
+
+        $message->deleted_at = now();
+        $message->save();
+    }
+
     public function getMessagesProperty()
     {
-        $query = Message::query();
+        $query = Message::query()->notDeleted();
 
         if ($this->receiverId === null) {
-            // Group chat — only group messages
             $query->whereNull('receiver_id');
         } else {
-            // Private chat — messages between the two users
             $query->where(function ($q) {
                 $q->where(function ($sub) {
                     $sub->where('sender_id', auth()->id())
@@ -66,7 +103,12 @@ class ChatBox extends Component
             });
         }
 
+        if ($this->search) {
+            $query->where('body', 'LIKE', '%' . $this->search . '%');
+        }
+
         return $query->with('sender')
+            ->whereNotNull('body')
             ->orderBy('created_at', 'asc')
             ->take(50)
             ->get();
