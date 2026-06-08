@@ -179,6 +179,7 @@
         {{ $slot ?? '' }}
     </main>
 
-    @livewireScripts
+@livewire('chat-box')
+@livewireScripts
 </body>
 </html>
