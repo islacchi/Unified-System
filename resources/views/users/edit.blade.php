@@ -128,32 +128,17 @@
                     </div>
                 </div>
 
-                {{-- Change Password (Collapsible) --}}
-                <div x-data="{ open: false }" class="bg-white dark:bg-[#1a1f2e] prime:bg-white border border-gray-200 dark:border-[#333d55] prime:border-green-200 rounded-xl overflow-hidden shadow-sm">
-                    <button type="button" @click="open = !open" class="w-full flex items-center justify-between px-6 py-4 text-left">
-                        <div>
-                            <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 prime:text-gray-900">Change Password</h3>
-                            <p class="text-xs text-gray-400 dark:text-gray-500 prime:text-gray-400 mt-0.5">Leave blank to keep current password</p>
-                        </div>
-                        <svg class="w-4 h-4 text-gray-400 dark:text-gray-500 shrink-0 transition-transform duration-200" :class="open ? 'rotate-180' : ''" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
-                        </svg>
-                    </button>
-                    <div x-show="open" x-collapse style="display:none">
-                        <div class="px-6 pb-5 space-y-4 border-t border-gray-100 dark:border-[#2a3042] prime:border-green-100 pt-4">
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-400 dark:text-gray-500 prime:text-gray-400 uppercase tracking-wide mb-1.5">New Password</label>
-                                <input type="password" name="password" placeholder="Min. 8 characters"
-                                       class="w-full px-3 py-2.5 text-sm rounded-lg border border-gray-200 dark:border-[#333d55] prime:border-green-200 bg-white dark:bg-[#222736] prime:bg-white text-gray-900 dark:text-gray-100 prime:text-gray-900 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-900/20 dark:focus:ring-red-500/50 prime:focus:ring-green-500/50 transition">
-                                @error('password') <p class="text-red-500 text-xs mt-1.5">{{ $message }}</p> @enderror
-                            </div>
-                            <div>
-                                <label class="block text-xs font-semibold text-gray-400 dark:text-gray-500 prime:text-gray-400 uppercase tracking-wide mb-1.5">Confirm Password</label>
-                                <input type="password" name="password_confirmation" placeholder="Repeat password"
-                                       class="w-full px-3 py-2.5 text-sm rounded-lg border border-gray-200 dark:border-[#333d55] prime:border-green-200 bg-white dark:bg-[#222736] prime:bg-white text-gray-900 dark:text-gray-100 prime:text-gray-900 placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-gray-900/20 dark:focus:ring-red-500/50 prime:focus:ring-green-500/50 transition">
-                            </div>
-                        </div>
-                    </div>
+                {{-- Reset Password to Default --}}
+                <div class="bg-white dark:bg-[#1a1f2e] prime:bg-white border border-gray-200 dark:border-[#333d55] prime:border-green-200 rounded-xl p-6 shadow-sm">
+                    <h3 class="text-sm font-semibold text-gray-900 dark:text-gray-100 prime:text-gray-900">Reset Password</h3>
+                    <p class="text-xs text-gray-400 dark:text-gray-500 prime:text-gray-400 mt-0.5 mb-4">
+                        Resets the user's password to the system default. Admin can change the default in Settings.
+                    </p>
+                <button type="button"
+                        onclick="if(confirm('Reset password for {{ $user->name }} to the default password?')) { document.getElementById('reset-pw-form').submit(); }"
+                        class="w-full px-4 py-2.5 text-sm font-medium rounded-lg border border-red-200 dark:border-red-900 prime:border-red-200 text-red-600 dark:text-red-400 prime:text-red-600 hover:bg-red-50 dark:hover:bg-red-950 prime:hover:bg-red-50 transition">
+                    Reset Password to Default
+                </button>
                 </div>
             </div>
         </div>
@@ -171,4 +156,7 @@
         </div>
     </form>
 </div>
+<form id="reset-pw-form" method="POST" action="{{ route('users.resetPassword', $user) }}" style="display:none">
+    @csrf
+</form>
 @endsection

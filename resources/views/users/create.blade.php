@@ -14,7 +14,7 @@
 
     <div class="bg-white dark:bg-[#1a1f2e] prime:bg-white border border-gray-200 dark:border-[#333d55] prime:border-green-200 rounded-xl p-6">
 
-        <form method="POST" action="{{ route('users.store') }}" class="space-y-4" autocomplete="off" enctype="multipart/form-data">
+        <form method="POST" action="{{ route('users.store') }}" class="space-y-4" autocomplete="off" enctype="multipart/form-data">h
             @csrf
 
             <div>

@@ -152,6 +152,12 @@
                            class="block px-4 py-2.5 text-sm text-gray-700 dark:text-[var(--text-2)] prime:text-gray-700 hover:bg-gray-50 dark:hover:bg-[var(--surface-3)] prime:hover:bg-green-50 transition">
                             Edit Profile
                         </a>
+                        @if(auth()->check() && auth()->user()->isAdmin())
+                        <a href="{{ route('settings.edit') }}" @click="open = false"
+                           class="block px-4 py-2.5 text-sm text-gray-700 dark:text-[var(--text-2)] prime:text-gray-700 hover:bg-gray-50 dark:hover:bg-[var(--surface-3)] prime:hover:bg-green-50 transition border-t border-gray-100 dark:border-[var(--border)] prime:border-green-100">
+                            Settings
+                        </a>
+                        @endif
                         <form method="POST" action="{{ route('logout') }}">
                             @csrf
                             <button type="submit"

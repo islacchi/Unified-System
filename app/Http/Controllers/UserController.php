@@ -6,6 +6,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use App\Models\Setting;
 
 class UserController extends Controller
 {
@@ -17,7 +18,8 @@ class UserController extends Controller
 
     public function create()
     {
-        return view('users.create');
+        $defaultPassword = Setting::getValue('default_password', 'Staff@2024');
+        return view('users.create', compact('defaultPassword'));
     }
 
     public function store(Request $request)
@@ -40,7 +42,7 @@ class UserController extends Controller
             'email'    => $data['email'],
             'role'     => $data['role'],
             'avatar'   => $avatarPath,
-            'password' => Hash::make($data['password']),
+            'password' => $data['password'], // Cast auto-hashes
         ]);
 
         return redirect()->route('users.index')
@@ -80,7 +82,7 @@ class UserController extends Controller
         }
 
         if ($request->filled('password')) {
-            $user->password = Hash::make($request->password);
+            $user->password = $request->password; // Cast auto-hashes
         }
 
         $user->save();
@@ -128,13 +130,23 @@ class UserController extends Controller
         }
 
         if ($request->filled('password')) {
-            $user->password = Hash::make($request->password);
+            $user->password = $request->password; // Cast auto-hashes
         }
 
         $user->save();
 
         return redirect()->back()
             ->with('message', 'Profile updated successfully.');
+    }
+
+    public function resetPassword(User $user)
+    {
+        $defaultPassword = Setting::getValue('default_password', 'Staff@2024');
+        $user->password = $defaultPassword; // Cast will auto-hash
+        $user->save();
+
+        return redirect()->route('users.edit', $user)
+            ->with('message', "Password for {$user->name} has been reset to the default password.");
     }
 
     public function destroy(User $user)
