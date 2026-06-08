@@ -325,8 +325,9 @@ foreach ($this->items as $item) {
         // Only check overdue if a deadline is set
         $isOverdue = $this->deadline && now()->startOfDay()->gt(\Carbon\Carbon::parse($this->deadline)->startOfDay());
 
-    if ($isOverdue) {
+  if ($isOverdue && !in_array($rfq->status, ['Awarded'])) {
             $rfq->update(['status' => 'Lost']);
+        
      } elseif ($rfq->status === 'Lost' && $this->deadline && now()->startOfDay()->lte(\Carbon\Carbon::parse($this->deadline)->startOfDay())) {
             // Deadline extended to future — reopen based on pricing
             $rfq->update(['status' => $allPriced ? 'Quoted' : 'Reviewing']);
