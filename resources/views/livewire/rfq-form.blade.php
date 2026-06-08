@@ -136,12 +136,12 @@
                 <p class="text-xs text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500 mb-2">
                     Paste from Excel or text. Column order:
                     <span class="font-mono bg-white dark:bg-[var(--surface-3)] prime:bg-white border border-gray-200 dark:border-[var(--border)] prime:border-green-200 dark:text-[var(--text-2)] prime:text-gray-900 px-1 rounded">
-                        Description · Unit · Quantity · Unit Price (optional)
+                       Brand · Description · Unit · Quantity · Unit Price (optional)
                     </span>
                 </p>
                 <textarea wire:model="pasteText"
                           rows="4"
-                          placeholder="Amoxicillin 500mg&#9;tablet&#9;100&#9;5.50"
+                          placeholder="Biogesic&#9;Amoxicillin 500mg&#9;tablet&#9;100&#9;5.50"
                           class="w-full border border-gray-200 dark:border-[var(--border)] prime:border-green-200 dark:bg-[var(--surface)] prime:bg-white dark:text-[var(--text-1)] prime:text-gray-900 dark:placeholder-[var(--text-3)] prime:placeholder-green-600 rounded-lg px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[var(--accent)] prime:focus:ring-green-500 resize-none mb-2">
                 </textarea>
                 @error('pasteText')
@@ -165,8 +165,9 @@
                 <thead class="bg-gray-50 dark:bg-[var(--surface-2)] prime:bg-gray-50 border-b border-gray-100 dark:border-[var(--border)] prime:border-green-900">
                     <tr>
                         <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-900">#</th>
-                        <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-900">Item Description</th>
                         <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-900">Brand</th>
+                        <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-900">Item Description</th>
+                        
                         <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-900">Unit</th>
                         <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-900">Qty</th>
                         <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-900">Unit Price (₱)</th>
@@ -182,6 +183,12 @@
                             <td class="px-4 py-2 text-gray-400 dark:text-[var(--text-3)] prime:text-gray-400 text-xs">
                                 {{ ($itemPage - 1) * $itemsPerPage + $loop->iteration }}
                             </td>
+                               <td class="px-4 py-2">
+                                <input type="text" wire:model="items.{{ $index }}.brand"
+                                    placeholder="e.g. Biogesic"
+                                    class="w-full border border-gray-200 dark:border-[var(--border)] prime:border-green-900 dark:bg-[var(--surface-2)] dark:text-[var(--text-1)] dark:placeholder-[var(--text-3)] prime:text-gray-900 prime:placeholder-green-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[var(--accent)] prime:focus:ring-green-500">
+                            </td>
+
                            
                             <td class="px-4 py-2">
                                 <input type="text" wire:model="items.{{ $index }}.item_description"
@@ -189,12 +196,7 @@
                                        class="w-full border border-gray-200 dark:border-[var(--border)] prime:border-green-900 dark:bg-[var(--surface-2)] dark:text-[var(--text-1)] dark:placeholder-[var(--text-3)] prime:text-gray-900 prime:placeholder-green-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[var(--accent)] prime:focus:ring-green-500">
                                 @error("items.{$index}.item_description") <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
                             </td>
-                             <td class="px-4 py-2">
-                                <input type="text" wire:model="items.{{ $index }}.brand"
-                                    placeholder="e.g. Biogesic"
-                                    class="w-full border border-gray-200 dark:border-[var(--border)] prime:border-green-900 dark:bg-[var(--surface-2)] dark:text-[var(--text-1)] dark:placeholder-[var(--text-3)] prime:text-gray-900 prime:placeholder-green-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[var(--accent)] prime:focus:ring-green-500">
-                            </td>
-
+                          
 
                             <td class="px-4 py-2">
                                 <input type="text" wire:model="items.{{ $index }}.unit"

@@ -125,7 +125,14 @@ class RfqForm extends Component
         $lines = array_filter($lines, fn($line) => trim($line) !== '');
         $added = 0;
 
-        foreach ($lines as $line) {
+      // Remove existing blank rows before appending pasted items
+$this->items = array_values(array_filter($this->items, fn($item) =>
+    trim($item['item_description'] ?? '') !== '' ||
+    trim($item['unit'] ?? '') !== '' ||
+    trim($item['quantity'] ?? '') !== ''
+));
+
+foreach ($lines as $line) {
             // Auto-detect separator: tab (Excel) or comma
             $separator = str_contains($line, "\t") ? "\t" : ",";
             $cols      = array_map('trim', explode($separator, $line));
@@ -133,12 +140,14 @@ class RfqForm extends Component
             // Skip rows that don't have at least description, unit, and quantity
             if (count($cols) < 3) continue;
 
-            $this->items[] = [
-                'item_description' => $cols[0] ?? '',
-                'unit'             => $cols[1] ?? '',
-                'quantity'         => $cols[2] ?? '',
-                'unit_price'       => $cols[3] ?? '',
-            ];
+        $hasBrand = count($cols) >= 5;
+$this->items[] = [
+    'brand'            => $hasBrand ? ($cols[0] ?? '') : '',
+    'item_description' => $hasBrand ? ($cols[1] ?? '') : ($cols[0] ?? ''),
+    'unit'             => $hasBrand ? ($cols[2] ?? '') : ($cols[1] ?? ''),
+    'quantity'         => $hasBrand ? ($cols[3] ?? '') : ($cols[2] ?? ''),
+    'unit_price'       => $hasBrand ? ($cols[4] ?? '') : ($cols[3] ?? ''),
+];
             $added++;
         }
 
