@@ -239,13 +239,16 @@ public function toggleReviewing(): void
         // --- Status trappings ---
 
         // A Lost RFQ is locked — its status cannot be changed to anything else
-        if ($this->rfqId) {
+    if ($this->rfqId) {
             $current = Rfq::findOrFail($this->rfqId);
             if ($current->status === 'Lost' && $this->status !== 'Lost') {
-                $this->addError('status', 'A Lost RFQ cannot be changed to another status.');
-                return;
+                // Allow reopening only if deadline is being extended to the future
+                $deadlineInFuture = $this->deadline && now()->startOfDay()->lte(\Carbon\Carbon::parse($this->deadline)->startOfDay());
+                if (!$deadlineInFuture) {
+                    $this->addError('status', 'A Lost RFQ cannot be changed to another status unless the deadline is extended to a future date.');
+                    return;
+                }
             }
-
             // Awarded status requires at least one of NOA / PO / NTP to be checked
             if ($this->status === 'Awarded') {
                 $docs = $current->documents ?? [];
@@ -322,10 +325,12 @@ foreach ($this->items as $item) {
         // Only check overdue if a deadline is set
         $isOverdue = $this->deadline && now()->startOfDay()->gt(\Carbon\Carbon::parse($this->deadline)->startOfDay());
 
-        if ($isOverdue) {
-            // Deadline has passed — mark as Lost regardless of pricing
+    if ($isOverdue) {
             $rfq->update(['status' => 'Lost']);
-     } elseif (!in_array($rfq->status, ['Awarded', 'Lost'])) {
+     } elseif ($rfq->status === 'Lost' && $this->deadline && now()->startOfDay()->lte(\Carbon\Carbon::parse($this->deadline)->startOfDay())) {
+            // Deadline extended to future — reopen based on pricing
+            $rfq->update(['status' => $allPriced ? 'Quoted' : 'Reviewing']);
+        }elseif (!in_array($rfq->status, ['Awarded', 'Lost'])) {
             if ($allPriced) {
                 $rfq->update(['status' => 'Quoted']);
             } elseif ($rfq->status !== 'Reviewing') {
