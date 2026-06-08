@@ -81,13 +81,44 @@ class ChatBox extends Component
         $message = Message::find($messageId);
         if (!$message || !$message->canDelete()) return;
 
+        // Use deleted_by so only this user can't see it, the other person still can
+        $message->deleted_by = auth()->id();
+        $message->save();
+    }
+
+    public function unsendMessage(int $messageId)
+    {
+        $message = Message::find($messageId);
+        if (!$message || !$message->canUnsend()) return;
+
+        // Use deleted_at so neither user can see it
         $message->deleted_at = now();
         $message->save();
     }
 
+    public function deleteConversation()
+    {
+        if ($this->receiverId === null) return;
+
+        $userId = auth()->id();
+        $otherId = $this->receiverId;
+
+        // Mark ALL messages in this conversation as deleted by me (only I can't see them)
+        Message::where(function ($q) use ($userId, $otherId) {
+            $q->where(function ($sub) use ($userId, $otherId) {
+                $sub->where('sender_id', $userId)->where('receiver_id', $otherId);
+            })->orWhere(function ($sub) use ($userId, $otherId) {
+                $sub->where('sender_id', $otherId)->where('receiver_id', $userId);
+            });
+        })->update(['deleted_by' => $userId]);
+
+        $this->receiverId = null;
+        $this->dispatch('$refresh');
+    }
+
     public function getMessagesProperty()
     {
-        $query = Message::query()->notDeleted();
+        $query = Message::query()->notDeletedForMe();
 
         if ($this->receiverId === null) {
             $query->whereNull('receiver_id');

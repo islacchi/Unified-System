@@ -35,13 +35,28 @@ class Message extends Model
 
     public function canDelete(): bool
     {
-        if ($this->sender_id !== auth()->id()) return false;
-        return $this->created_at->diffInMinutes(now()) < 5;
+        // Can delete own messages within 5 min, OR any received message
+        if ($this->sender_id === auth()->id()) {
+            return $this->created_at->diffInMinutes(now()) < 5;
+        }
+        // Can delete any received message
+        return true;
     }
 
-    public function scopeNotDeleted($query)
+    public function canUnsend(): bool
     {
-        return $query->whereNull('deleted_at');
+        // Can only unsend your own messages within 2 minutes
+        if ($this->sender_id !== auth()->id()) return false;
+        return $this->created_at->diffInMinutes(now()) < 2;
+    }
+
+    public function scopeNotDeletedForMe($query)
+    {
+        return $query->whereNull('deleted_at')
+                     ->where(function ($q) {
+                         $q->where('deleted_by', '!=', auth()->id())
+                           ->orWhereNull('deleted_by');
+                     });
     }
 
     public function scopeSearch($query, ?string $search)

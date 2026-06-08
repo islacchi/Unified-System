@@ -39,6 +39,17 @@
                             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
                         </svg>
                     </button>
+
+                    {{-- Delete conversation button (only visible when viewing a specific user) --}}
+                    @if($receiverId !== null)
+                        <button wire:click="deleteConversation()" wire:confirm="Delete entire conversation? This cannot be undone."
+                                class="w-6 h-6 rounded flex items-center justify-center text-gray-400 hover:text-red-500 dark:hover:text-red-400 transition"
+                                title="Delete conversation">
+                            <svg class="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                            </svg>
+                        </button>
+                    @endif
                 </div>
             </div>
 
@@ -83,13 +94,13 @@
                     $isMine = $message->sender_id === auth()->id();
                     $isImage = $message->file_type && str_starts_with($message->file_type, 'image/');
                 @endphp
-                <div class="flex {{ $isMine ? 'justify-end' : 'justify-start' }} gap-2 group">
+                <div class="flex {{ $isMine ? 'justify-end' : 'justify-start' }} gap-2 relative">
                     @if(!$isMine)
                         <div class="w-6 h-6 rounded-full bg-gray-200 dark:bg-[var(--surface-3)] prime:bg-green-100 flex items-center justify-center text-xs font-bold text-gray-600 dark:text-[var(--text-2)] prime:text-green-700 shrink-0 mt-1">
                             {{ strtoupper(substr($message->sender->name, 0, 1)) }}
                         </div>
                     @endif
-                    <div class="max-w-[70%]">
+                    <div class="max-w-[70%] relative group">
                         @if(!$isMine)
                             <p class="text-xs text-gray-400 dark:text-[var(--text-3)] prime:text-gray-400 mb-0.5 ml-1">{{ $message->sender->name }}</p>
                         @endif
@@ -118,10 +129,28 @@
                                 </a>
                             @endif
 
-                            {{-- Delete button (own messages, within 5 min) --}}
-                            @if($isMine && $message->created_at->diffInMinutes(now()) < 5)
+                            {{-- Actions (delete / unsend) --}}
+                            @if($receiverId !== null && $isMine && !$message->deleted_at)
+                                <div class="absolute -top-2 -right-2 flex gap-1 opacity-0 group-hover:opacity-100 transition">
+                                    @if($message->canUnsend())
+                                        <button wire:click="unsendMessage({{ $message->id }})"
+                                                wire:confirm="Unsend this message? Both you and the recipient won't see it."
+                                                class="w-5 h-5 rounded-full bg-orange-500 text-white flex items-center justify-center text-xs hover:scale-110"
+                                                title="Unsend (2 min limit)">
+                                            ↩
+                                        </button>
+                                    @endif
+                                    <button wire:click="deleteMessage({{ $message->id }})"
+                                            wire:confirm="Delete this message? Only you won't see it."
+                                            class="w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center text-xs hover:scale-110"
+                                            title="Delete for me">
+                                        ✕
+                                    </button>
+                                </div>
+                            @elseif($receiverId !== null && !$isMine && !$message->deleted_at)
                                 <button wire:click="deleteMessage({{ $message->id }})"
-                                        class="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-red-500 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-xs hover:scale-110">
+                                        wire:confirm="Delete this message from your view?"
+                                        class="absolute -top-2 -right-2 w-5 h-5 rounded-full bg-gray-400 text-white flex items-center justify-center opacity-0 group-hover:opacity-100 transition text-xs hover:scale-110">
                                     ✕
                                 </button>
                             @endif
