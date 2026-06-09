@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -37,13 +38,15 @@ class UserController extends Controller
             $avatarPath = $request->file('avatar')->store('avatars', 'public');
         }
 
-        User::create([
+        $newUser = User::create([
             'name'     => $data['name'],
             'email'    => $data['email'],
             'role'     => $data['role'],
             'avatar'   => $avatarPath,
             'password' => $data['password'], // Cast auto-hashes
         ]);
+
+        ActivityLog::log('user.created', $newUser);
 
         return redirect()->route('users.index')
             ->with('message', "User {$data['name']} created successfully.");
@@ -86,6 +89,8 @@ class UserController extends Controller
         }
 
         $user->save();
+
+        ActivityLog::log('user.updated', $user);
 
         return redirect()->route('users.index')
             ->with('message', "{$user->name}'s account updated successfully.");
@@ -155,11 +160,14 @@ class UserController extends Controller
             return back()->withErrors(['error' => 'You cannot delete your own account.']);
         }
 
+        $label = $user->name;
+
         if ($user->avatar) {
             Storage::disk('public')->delete($user->avatar);
         }
 
         $user->delete();
+        ActivityLog::log('user.deleted', null, ['name' => $label]);
         return back()->with('message', "User deleted.");
     }
 }

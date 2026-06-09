@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Rfq;
+use App\Models\ActivityLog;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -82,7 +83,9 @@ class RfqTracker extends Component
     public function updateStatus(int $rfqId, string $status): void
     {
         $rfq = Rfq::findOrFail($rfqId);
+        $old_status = $rfq->status;
         $rfq->update(['status' => $status]);
+        ActivityLog::log('rfq.status_changed', $rfq, ['status' => $old_status], ['status' => $status]);
         session()->flash('message', "RFQ #{$rfq->rfq_number} updated to {$status}.");
     }
 
@@ -116,10 +119,14 @@ public function toggleDoc(int $rfqId, string $doc): void
     $docs[$doc] = $current ? false : ['received' => true, 'date' => null];
     $rfq->update(['documents' => $docs]);
 
+    ActivityLog::log('rfq.document_toggled', $rfq, null, ['doc' => $doc, 'checked' => !$current]);
+
     // Re-evaluate status based on current state of all 3 award docs
     if (in_array($doc, ['notice_of_award', 'purchase_order', 'ntp'])) {
         $stillAwarded = collect(['notice_of_award', 'purchase_order', 'ntp'])
             ->some(fn($d) => !empty($docs[$d]));
+
+        $old_status = $rfq->status;
 
         if ($stillAwarded) {
             $rfq->update(['status' => 'Awarded']);
@@ -127,6 +134,10 @@ public function toggleDoc(int $rfqId, string $doc): void
             // No award docs remaining — revert based on actual pricing
             $allPriced = $rfq->items->every(fn($item) => !empty($item->unit_price));
             $rfq->update(['status' => $allPriced ? 'Quoted' : 'Received']);
+        }
+
+        if ($old_status !== $rfq->status) {
+            ActivityLog::log('rfq.status_changed', $rfq, ['status' => $old_status], ['status' => $rfq->status]);
         }
     }
 }
@@ -140,9 +151,12 @@ public function toggleDoc(int $rfqId, string $doc): void
         $rfq  = Rfq::findOrFail($rfqId);
         $docs = $rfq->documents ?? [];
 
+        $old_date = $docs[$doc]['date'] ?? null;
         // Keep received flag true and update only the date
         $docs[$doc] = ['received' => true, 'date' => $date];
         $rfq->update(['documents' => $docs]);
+
+        ActivityLog::log('rfq.document_date_set', $rfq, ['doc' => $doc, 'date' => $old_date], ['doc' => $doc, 'date' => $date]);
     }
 
     // -------------------------------------------------------------------------

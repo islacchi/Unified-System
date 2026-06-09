@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Rfq;
 use App\Models\Agency;
+use App\Models\ActivityLog;
 use Illuminate\Http\Request;
 
 class RfqController extends Controller
@@ -42,6 +43,8 @@ class RfqController extends Controller
 
         $rfq = Rfq::create($validated);
 
+        ActivityLog::log('rfq.created', $rfq);
+
         return redirect()->route('rfqs.index')
                          ->with('message', "RFQ {$rfq->rfq_number} created successfully.");
     }
@@ -54,7 +57,9 @@ class RfqController extends Controller
     public function show(Rfq $rfq)
     {
         if ($rfq->status === 'Received') {
+            $old = ['status' => 'Received'];
             $rfq->update(['status' => 'Reviewing']);
+            ActivityLog::log('rfq.status_changed', $rfq, $old, ['status' => 'Reviewing']);
         }
 
         return view('rfqs.show', compact('rfq'));
@@ -85,7 +90,14 @@ class RfqController extends Controller
             'philgeps_ref'  => 'nullable|string',
         ]);
 
+        $oldStatus = $rfq->status;
         $rfq->update($validated);
+
+        if ($oldStatus !== $rfq->status) {
+            ActivityLog::log('rfq.status_changed', $rfq, ['status' => $oldStatus], ['status' => $rfq->status]);
+        } else {
+            ActivityLog::log('rfq.updated', $rfq);
+        }
 
         return redirect()->route('rfqs.show', $rfq)
                          ->with('message', "RFQ {$rfq->rfq_number} updated successfully.");
@@ -103,7 +115,9 @@ class RfqController extends Controller
                              ->with('message', "Cannot decline an RFQ with status \"{$rfq->status}\".");
         }
 
+        $old = ['status' => $rfq->status];
         $rfq->update(['status' => 'Declined']);
+        ActivityLog::log('rfq.declined', $rfq, $old, ['status' => 'Declined']);
 
         return redirect()->route('rfqs.show', $rfq)
                          ->with('message', "RFQ {$rfq->rfq_number} marked as Declined.");
@@ -115,7 +129,9 @@ class RfqController extends Controller
      */
     public function destroy(Rfq $rfq)
     {
+        $label = $rfq->rfq_number;
         $rfq->delete();
+        ActivityLog::log('rfq.deleted', null, ['rfq_number' => $label]);
         return redirect()->route('rfqs.index')
                          ->with('message', 'RFQ deleted successfully.');
     }

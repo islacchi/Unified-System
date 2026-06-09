@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Agency;
+use App\Models\ActivityLog;
 use Livewire\Component;
 use Livewire\WithPagination;
 
@@ -39,6 +40,7 @@ class AgencyList extends Component
         }
 
         $agency->delete();
+        ActivityLog::log('agency.deleted', null, ['name' => $agency->name]);
         session()->flash('message', "Agency {$agency->name} deleted.");
         $this->resetPage();
     }

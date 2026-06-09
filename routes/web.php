@@ -8,6 +8,7 @@ use App\Http\Controllers\CprController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SettingsController;
+use App\Livewire\ActivityLogPage;
 
 // ── Auth routes (guest only) ─────────────────────────────────────────────────
 Route::middleware('guest')->group(function () {
@@ -68,6 +69,7 @@ Route::middleware('auth')->group(function () {
         Route::post('/users/{user}/reset-password', [UserController::class, 'resetPassword'])->name('users.resetPassword');
         Route::get('/settings',          [SettingsController::class, 'edit'])->name('settings.edit');
         Route::put('/settings',          [SettingsController::class, 'update'])->name('settings.update');
+        Route::get('/activity-log',      ActivityLogPage::class)->name('activity-log');
     });
 
 });
