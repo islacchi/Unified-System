@@ -6,6 +6,7 @@ use App\Models\Message;
 use App\Models\User;
 use Livewire\Component;
 use Livewire\WithFileUploads;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 
 class ChatBox extends Component
@@ -207,7 +208,12 @@ class ChatBox extends Component
 
     public function getUsersProperty()
     {
-        return User::orderBy('name')->get();
+        // Cached for 5 minutes — the user list rarely changes and this
+        // query fires on every chat poll (every 4s), so caching it
+        // removes a full users-table read from each refresh.
+        return Cache::remember('chatbox:users:all', 300, function () {
+            return User::orderBy('name')->get();
+        });
     }
 
     public function render()

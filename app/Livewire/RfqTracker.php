@@ -161,22 +161,38 @@ public function toggleDoc(int $rfqId, string $doc): void
 
     // -------------------------------------------------------------------------
     // Computed metrics for the dashboard cards at the top of the tracker
+    // Single query with conditional aggregation — replaces what used to be
+    // 5 separate COUNT(*) queries (one per status), each of which scanned
+    // the rfqs table. With the rfqs.status index added in the
+    // 2026_06_09_144000_add_performance_indexes migration, this is now a
+    // single index scan.
     // -------------------------------------------------------------------------
     public function getMetricsProperty(): array
     {
-        $all      = Rfq::count();
-        $pending  = Rfq::whereIn('status', ['Received', 'Reviewing'])->count();
-        $quoted   = Rfq::where('status', 'Quoted')->count();
-        $awarded  = Rfq::where('status', 'Awarded')->count();
-        $declined = Rfq::where('status', 'Declined')->count();
+        $row = Rfq::selectRaw('
+                COUNT(*) AS total,
+                SUM(CASE WHEN status IN (?, ?) THEN 1 ELSE 0 END) AS pending,
+                SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) AS quoted,
+                SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) AS awarded,
+                SUM(CASE WHEN status = ? THEN 1 ELSE 0 END) AS declined
+            ', ['Received', 'Reviewing', 'Quoted', 'Awarded', 'Declined'])
+            ->first();
+
+        $total    = (int) ($row->total    ?? 0);
+        $pending  = (int) ($row->pending  ?? 0);
+        $quoted   = (int) ($row->quoted   ?? 0);
+        $awarded  = (int) ($row->awarded  ?? 0);
+        $declined = (int) ($row->declined ?? 0);
 
         return [
-            'total'    => $all,
+            'total'    => $total,
             'pending'  => $pending,
             'quoted'   => $quoted,
             'awarded'  => $awarded,
             'declined' => $declined,
-            'win_rate' => ($quoted + $awarded) > 0 ? round(($awarded / ($quoted + $awarded)) * 100) : 0,
+            'win_rate' => ($quoted + $awarded) > 0
+                ? (int) round(($awarded / ($quoted + $awarded)) * 100)
+                : 0,
         ];
     }
     // -------------------------------------------------------------------------

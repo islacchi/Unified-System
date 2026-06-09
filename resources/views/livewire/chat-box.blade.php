@@ -85,7 +85,7 @@
 
         {{-- Messages --}}
         <div class="flex-1 overflow-y-auto px-4 py-3 space-y-3"
-             wire:poll.4000ms="$refresh"
+             wire:poll.10s.visible="$refresh"
              x-init="$nextTick(() => $el.scrollTop = $el.scrollHeight)"
              @chat-sent.window="$nextTick(() => $el.scrollTop = $el.scrollHeight)"
              id="chat-messages">
@@ -111,7 +111,7 @@
 
                             {{-- Body text --}}
                             @if($message->body)
-                                <p>{{ $message->body }}</p>
+                                <p class="break-words whitespace-pre-wrap overflow-wrap-anywhere">{{ $message->body }}</p>
                             @endif
 
                             {{-- Image attachment --}}
