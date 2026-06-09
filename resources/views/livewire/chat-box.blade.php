@@ -156,7 +156,13 @@
                             @endif
                         </div>
                         <p class="text-xs text-gray-300 dark:text-[var(--text-3)] prime:text-gray-300 mt-0.5 {{ $isMine ? 'text-right mr-1' : 'ml-1' }}">
-                            {{ $message->created_at->format('h:i A') }}
+                            @if($message->created_at->isToday())
+                                {{ $message->created_at->format('h:i A') }}
+                            @elseif($message->created_at->isYesterday())
+                                Yesterday {{ $message->created_at->format('h:i A') }}
+                            @else
+                                {{ $message->created_at->format('M d, h:i A') }}
+                            @endif
                         </p>
                     </div>
                 </div>
