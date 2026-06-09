@@ -380,20 +380,63 @@ Other devices on the same network can then access it at `http://<your-local-ip>:
 
 ---
 
-## Auto-Start on Boot (Windows)
+## Auto-Start on Boot (Windows + XAMPP)
 
-To automatically start the server when your PC boots:
+PRIMEDocs is set up to run via **XAMPP Apache + MySQL** and auto-start on boot.
 
-1. Create a batch file at `C:\Users\primelink\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\serve-app.bat`:
+### How it works
+
+1. A batch file (`serve-app.bat`) is placed in the Windows **Startup folder**.
+2. On every boot/login, the script launches `C:\xampp\xampp_start.exe`, which starts **Apache** and **MySQL** in the background.
+3. Anyone on the same network can access the system at:
+
+```
+http://<this-pc-lan-ip>/merged/public/
+```
+
+For example, if your PC's local IP is `192.168.254.167`, the URL is:
+```
+http://192.168.254.167/merged/public/
+```
+
+### Script location
+
+```
+C:\Users\primelink\AppData\Roaming\Microsoft\Windows\Start Menu\Programs\Startup\serve-app.bat
+```
+
+### Script content
 
 ```bat
 @echo off
-cd C:\xampp\htdocs\merged
-php artisan serve --host=0.0.0.0 --port=8000
+REM Start XAMPP Apache and MySQL
+start "" "C:\xampp\xampp_start.exe"
+
+REM Give the services a moment to be ready
+timeout /t 8 /nobreak >nul
+
+exit
 ```
 
-2. Ensure Apache and MySQL are set to auto-start (if using XAMPP):
-   - Open XAMPP Control Panel → click Config → select "Autostart" for Apache and MySQL.
+### Verify Apache is listening on all interfaces
+
+```cmd
+netstat -an | findstr ":80 " | findstr "LISTENING"
+```
+
+You should see `0.0.0.0:80` (not just `127.0.0.1:80`) — that means it's reachable from the network.
+
+### Find your local IP
+
+```cmd
+ipconfig | findstr "IPv4"
+```
+
+### Firewall
+
+If users on the network can't connect, allow port 80 (HTTP) through **Windows Firewall**:
+- Windows Security → Firewall & network protection → Advanced settings
+- Inbound Rules → New Rule → Port → TCP 80 → Allow
 
 ---
 
