@@ -1,7 +1,7 @@
 <div class="fixed bottom-4 right-4 z-50" x-data="{ open: @entangle('open'), showEmoji: false, emoji: ['😊','😂','❤️','👍','🔥','🎉','😍','🤔','🙏','💪','😢','👏','✨','🥳','😎','💯','🤝','😅','🎊','💡','🌟','🙌','🤗','😁'] }">
 
     {{-- Toggle button --}}
-    <button @click="open = !open; $wire.markAsRead()"
+    <button wire:click="toggle"
             class="relative w-12 h-12 rounded-full bg-gray-900 dark:bg-[var(--accent)] prime:bg-green-600 text-white shadow-lg flex items-center justify-center hover:scale-105 transition-transform">
         <svg class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 10h.01M12 10h.01M16 10h.01M21 16c0 1.1-.9 2-2 2H7l-4 4V6a2 2 0 012-2h14a2 2 0 012 2v10z"/>

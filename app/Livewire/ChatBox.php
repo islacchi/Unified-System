@@ -30,6 +30,47 @@ class ChatBox extends Component
         ];
     }
 
+    /**
+     * When opening the chat, auto-select the user with the latest message.
+     * If no one exists yet, keep receiverId as null (All channel).
+     */
+    public function toggle()
+    {
+        $this->open = !$this->open;
+
+        if ($this->open) {
+            $latestPartnerId = $this->getLatestChatPartnerId();
+            if ($latestPartnerId !== null) {
+                $this->receiverId = $latestPartnerId;
+            } else {
+                $this->receiverId = null;
+            }
+            $this->search = '';
+            $this->markAsRead();
+        }
+    }
+
+    /**
+     * Find the user (other than me) who has the most recent message with me.
+     */
+    private function getLatestChatPartnerId(): ?int
+    {
+        $latest = Message::query()
+            ->notDeletedForMe()
+            ->where(function ($q) {
+                $q->where('sender_id', auth()->id())
+                  ->orWhere('receiver_id', auth()->id());
+            })
+            ->orderBy('created_at', 'desc')
+            ->first();
+
+        if (!$latest) return null;
+
+        return $latest->sender_id === auth()->id()
+            ? $latest->receiver_id
+            : $latest->sender_id;
+    }
+
     public function markAsRead()
     {
         Message::where('receiver_id', auth()->id())
