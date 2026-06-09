@@ -167,7 +167,7 @@ class UserController extends Controller
         }
 
         $user->delete();
-        ActivityLog::log('user.deleted', null, ['name' => $label]);
+        ActivityLog::log('user.deleted', null, ['name' => $label], null, "Deleted user \"{$label}\"");
         return back()->with('message', "User deleted.");
     }
 }

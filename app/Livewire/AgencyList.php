@@ -40,7 +40,7 @@ class AgencyList extends Component
         }
 
         $agency->delete();
-        ActivityLog::log('agency.deleted', null, ['name' => $agency->name]);
+        ActivityLog::log('agency.deleted', null, ['name' => $agency->name], null, "Deleted agency \"{$agency->name}\"");
         session()->flash('message', "Agency {$agency->name} deleted.");
         $this->resetPage();
     }

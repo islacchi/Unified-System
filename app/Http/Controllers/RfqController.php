@@ -59,7 +59,7 @@ class RfqController extends Controller
         if ($rfq->status === 'Received') {
             $old = ['status' => 'Received'];
             $rfq->update(['status' => 'Reviewing']);
-            ActivityLog::log('rfq.status_changed', $rfq, $old, ['status' => 'Reviewing']);
+            ActivityLog::log('rfq.status_changed', $rfq, $old, ['status' => 'Reviewing'], "Changed status of RFQ #{$rfq->rfq_number} from Received to Reviewing");
         }
 
         return view('rfqs.show', compact('rfq'));
@@ -131,7 +131,7 @@ class RfqController extends Controller
     {
         $label = $rfq->rfq_number;
         $rfq->delete();
-        ActivityLog::log('rfq.deleted', null, ['rfq_number' => $label]);
+        ActivityLog::log('rfq.deleted', null, ['rfq_number' => $label], null, "Deleted RFQ #{$label}");
         return redirect()->route('rfqs.index')
                          ->with('message', 'RFQ deleted successfully.');
     }

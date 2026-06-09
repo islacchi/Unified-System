@@ -5,6 +5,7 @@ namespace App\Livewire;
 use App\Models\Rfq;
 use App\Models\Agency;
 use App\Models\RfqItem;
+use App\Models\ActivityLog;
 use Livewire\Component;
 
 class RfqForm extends Component
@@ -297,12 +298,20 @@ public function toggleReviewing(): void
         if ($this->rfqId) {
             // Update existing RFQ — delete old items and re-insert below
             $rfq = Rfq::findOrFail($this->rfqId);
+            $oldStatus = $rfq->status;
             $rfq->update($data);
             $rfq->items()->delete();
+
+            if ($oldStatus !== $rfq->status) {
+                ActivityLog::log('rfq.status_changed', $rfq, ['status' => $oldStatus], ['status' => $rfq->status], "Changed status of RFQ #{$rfq->rfq_number} from {$oldStatus} to {$rfq->status}");
+            } else {
+                ActivityLog::log('rfq.updated', $rfq, null, null, "Updated RFQ #{$rfq->rfq_number}");
+            }
         } else {
             // Create new RFQ — auto-generate number if left blank
             $data['rfq_number'] = $this->rfq_number ?: Rfq::generateNumber();
             $rfq = Rfq::create($data);
+            ActivityLog::log('rfq.created', $rfq);
         }
 
         // --- Re-insert line items ---

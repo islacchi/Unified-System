@@ -91,17 +91,17 @@ class ActivityLog extends Model
         $doc       = is_array($new) && isset($new['doc'])    ? $new['doc']    : '';
 
         $map = [
-            'rfq.created'           => "Created RFQ {$label}",
-            'rfq.updated'           => "Updated RFQ {$label}",
-            'rfq.deleted'           => "Deleted RFQ {$label}",
-            'rfq.status_changed'    => "Changed RFQ {$label} status from \"{$oldStatus}\" to \"{$newStatus}\"",
-            'rfq.declined'          => "Declined RFQ {$label}",
-            'rfq.document_toggled'  => "Toggled document \"{$doc}\" on RFQ {$label}",
-            'rfq.document_date_set' => "Set date for \"{$doc}\" on RFQ {$label}",
-            'agency.created'        => "Created agency \"{$label}\"",
+            'rfq.created'           => "Created new RFQ #{$label}",
+            'rfq.updated'           => "Updated RFQ #{$label}",
+            'rfq.deleted'           => "Deleted RFQ #{$label}",
+            'rfq.status_changed'    => "Changed status of RFQ #{$label} from {$oldStatus} to {$newStatus}",
+            'rfq.declined'          => "Declined RFQ #{$label}",
+            'rfq.document_toggled'  => "Marked document \"{$doc}\" as " . ($new['checked'] ?? true ? 'received' : 'not received') . " on RFQ #{$label}",
+            'rfq.document_date_set' => "Set document \"{$doc}\" date on RFQ #{$label}",
+            'agency.created'        => "Added new agency \"{$label}\"",
             'agency.updated'        => "Updated agency \"{$label}\"",
             'agency.deleted'        => "Deleted agency \"{$label}\"",
-            'user.created'          => "Created user \"{$label}\"",
+            'user.created'          => "Added new user \"{$label}\"",
             'user.updated'          => "Updated user \"{$label}\"",
             'user.deleted'          => "Deleted user \"{$label}\"",
         ];

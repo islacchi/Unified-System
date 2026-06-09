@@ -42,7 +42,23 @@
                 </thead>
                 <tbody class="divide-y divide-gray-100 dark:divide-[var(--border)] prime:divide-gray-200">
                     @forelse ($logs as $log)
-                        <tr class="hover:bg-gray-50 dark:hover:bg-[var(--surface-3)] prime:hover:bg-green-50 transition">
+                        @php
+                            $borderColor = match(true) {
+                                str_contains($log->action, 'created') => 'border-l-green-500 dark:border-l-green-400 prime:border-l-green-600',
+                                str_contains($log->action, 'updated') || str_contains($log->action, 'status_changed') || str_contains($log->action, 'document') => 'border-l-amber-500 dark:border-l-amber-400 prime:border-l-amber-600',
+                                str_contains($log->action, 'deleted') => 'border-l-red-500 dark:border-l-red-400 prime:border-l-red-600',
+                                str_contains($log->action, 'declined') => 'border-l-gray-400 dark:border-l-gray-500 prime:border-l-gray-600',
+                                default => 'border-l-blue-500 dark:border-l-blue-400 prime:border-l-blue-600',
+                            };
+                            $actionColor = match(true) {
+                                str_contains($log->action, 'created') => 'bg-green-50 text-green-800 dark:bg-green-950 dark:text-green-300 prime:bg-green-50 prime:text-green-800',
+                                str_contains($log->action, 'updated') || str_contains($log->action, 'status_changed') || str_contains($log->action, 'document') => 'bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300 prime:bg-amber-50 prime:text-amber-800',
+                                str_contains($log->action, 'deleted') => 'bg-red-50 text-red-800 dark:bg-red-950 dark:text-red-400 prime:bg-red-50 prime:text-red-800',
+                                str_contains($log->action, 'declined') => 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 prime:bg-gray-100 prime:text-gray-700',
+                                default => 'bg-blue-50 text-blue-800 dark:bg-blue-950 dark:text-blue-300 prime:bg-blue-50 prime:text-blue-800',
+                            };
+                        @endphp
+                        <tr class="hover:bg-gray-50 dark:hover:bg-[var(--surface-3)] prime:hover:bg-green-50 transition border-l-4 {{ $borderColor }}">
                             <td class="px-4 py-3 text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500 whitespace-nowrap">
                                 {{ $log->created_at->format('M d, Y') }}
                                 <span class="text-xs text-gray-400 dark:text-[var(--text-3)] prime:text-gray-400 ml-1">{{ $log->created_at->format('h:i A') }}</span>
@@ -53,15 +69,6 @@
                                 </span>
                             </td>
                             <td class="px-4 py-3">
-                                @php
-                                    $actionColor = match(true) {
-                                        str_contains($log->action, 'created') => 'bg-green-50 text-green-800 dark:bg-green-950 dark:text-green-300 prime:bg-green-50 prime:text-green-800',
-                                        str_contains($log->action, 'updated') || str_contains($log->action, 'status_changed') || str_contains($log->action, 'document') => 'bg-amber-50 text-amber-800 dark:bg-amber-950 dark:text-amber-300 prime:bg-amber-50 prime:text-amber-800',
-                                        str_contains($log->action, 'deleted') => 'bg-red-50 text-red-800 dark:bg-red-950 dark:text-red-400 prime:bg-red-50 prime:text-red-800',
-                                        str_contains($log->action, 'declined') => 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 prime:bg-gray-100 prime:text-gray-700',
-                                        default => 'bg-blue-50 text-blue-800 dark:bg-blue-950 dark:text-blue-300 prime:bg-blue-50 prime:text-blue-800',
-                                    };
-                                @endphp
                                 <span class="px-2.5 py-1 rounded-full text-xs font-medium {{ $actionColor }}">
                                     {{ $log->action }}
                                 </span>
@@ -72,8 +79,10 @@
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="4" class="px-4 py-12 text-center text-sm text-gray-400 dark:text-[var(--text-3)] prime:text-gray-400">
-                                No activity recorded yet.
+                            <td colspan="4" class="px-4 py-16 text-center">
+                                <div class="text-4xl mb-3">📋</div>
+                                <p class="text-sm font-medium text-gray-400 dark:text-[var(--text-3)] prime:text-gray-400">No activity recorded yet.</p>
+                                <p class="text-xs text-gray-300 dark:text-[var(--text-3)] prime:text-gray-300 mt-1">Actions like creating, editing, and deleting will appear here.</p>
                             </td>
                         </tr>
                     @endforelse

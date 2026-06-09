@@ -105,7 +105,7 @@
         </div>
 
         {{-- Section 2: Line Items --}}
-        <div class="bg-white dark:bg-[var(--surface)] prime:bg-white rounded-xl border border-gray-200 dark:border-[var(--border)] prime:border-green-900 mb-4 overflow-hidden">
+        <div class="bg-white dark:bg-[var(--surface)] prime:bg-white rounded-xl border border-gray-200 dark:border-[var(--border)] prime:border-green-900 mb-4">
 
             <div class="px-6 py-4 border-b border-gray-100 dark:border-[var(--border)] prime:border-green-900">
                 <div class="flex items-center justify-between">
@@ -190,33 +190,33 @@
                             </td>
 
                            
-                            <td class="px-4 py-2">
+                            <td class="px-4 py-2 relative">
                                 <input type="text" wire:model="items.{{ $index }}.item_description"
                                        placeholder="e.g. Amoxicillin 500mg Capsule"
                                        class="w-full border border-gray-200 dark:border-[var(--border)] prime:border-green-900 dark:bg-[var(--surface-2)] dark:text-[var(--text-1)] dark:placeholder-[var(--text-3)] prime:text-gray-900 prime:placeholder-green-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[var(--accent)] prime:focus:ring-green-500">
-                                @error("items.{$index}.item_description") <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                                @error("items.{$index}.item_description") <p class="text-red-500 text-xs absolute left-4 top-full z-10 whitespace-nowrap">Required</p> @enderror
                             </td>
                           
 
-                            <td class="px-4 py-2">
+                            <td class="px-4 py-2 relative">
                                 <input type="text" wire:model="items.{{ $index }}.unit"
                                        placeholder="tablet"
                                        class="w-full border border-gray-200 dark:border-[var(--border)] prime:border-green-900 dark:bg-[var(--surface-2)] dark:text-[var(--text-1)] dark:placeholder-[var(--text-3)] prime:text-gray-900 prime:placeholder-green-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[var(--accent)] prime:focus:ring-green-500">
-                                @error("items.{$index}.unit") <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                                @error("items.{$index}.unit") <p class="text-red-500 text-xs absolute left-4 top-full z-10 whitespace-nowrap">Required</p> @enderror
                             </td>
 
-                            <td class="px-4 py-2">
+                            <td class="px-4 py-2 relative">
                                 <input type="number" wire:model="items.{{ $index }}.quantity"
                                        placeholder="0" min="1"
                                        class="w-full border border-gray-200 dark:border-[var(--border)] prime:border-green-900 dark:bg-[var(--surface-2)] dark:text-[var(--text-1)] prime:text-gray-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[var(--accent)] prime:focus:ring-green-500">
-                                @error("items.{$index}.quantity") <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                                @error("items.{$index}.quantity") <p class="text-red-500 text-xs absolute left-4 top-full z-10 whitespace-nowrap">Required</p> @enderror
                             </td>
 
-                            <td class="px-4 py-2">
+                            <td class="px-4 py-2 relative">
                                 <input type="number" wire:model="items.{{ $index }}.unit_price"
                                        placeholder="0.00" step="0.01" min="0"
                                        class="w-full border border-gray-200 dark:border-[var(--border)] prime:border-green-900 dark:bg-[var(--surface-2)] dark:text-[var(--text-1)] prime:text-gray-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[var(--accent)] prime:focus:ring-green-500">
-                                @error("items.{$index}.unit_price") <p class="text-red-500 text-xs mt-1">{{ $message }}</p> @enderror
+                                @error("items.{$index}.unit_price") <p class="text-red-500 text-xs absolute left-4 top-full z-10 whitespace-nowrap">Required</p> @enderror
                             </td>
 
                             <td class="px-4 py-2 text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500 text-sm">

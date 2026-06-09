@@ -3,6 +3,7 @@
 namespace App\Livewire;
 
 use App\Models\Agency;
+use App\Models\ActivityLog;
 use Livewire\Component;
 
 class AgencyForm extends Component
@@ -77,10 +78,13 @@ $this->validate([
         ];
 
         if ($this->agencyId) {
-            Agency::findOrFail($this->agencyId)->update($data);
+            $agency = Agency::findOrFail($this->agencyId);
+            $agency->update($data);
+            ActivityLog::log('agency.updated', $agency);
             $message = 'Agency updated successfully.';
         } else {
-            Agency::create($data);
+            $agency = Agency::create($data);
+            ActivityLog::log('agency.created', $agency);
             $message = 'Agency added successfully.';
         }
 
