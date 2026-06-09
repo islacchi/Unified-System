@@ -2,7 +2,6 @@
 
 @section('content')
 <style>
-* { font-family: 'DM Sans', sans-serif; }
         code, .mono { font-family: 'DM Mono', monospace; }
 
         :root {
@@ -27,6 +26,18 @@
             --text-3:     #5c6680;
             --accent:     #5b8dee;
             --accent-h:   #7aa3f5;
+        }
+
+        .prime {
+            --surface:    #ffffff;
+            --surface-2:  #f0fdf4;
+            --surface-3:  #dcfce7;
+            --border:     #bbf7d0;
+            --text-1:     #14532d;
+            --text-2:     #166534;
+            --text-3:     #22c55e;
+            --accent:     #16a34a;
+            --accent-h:   #15803d;
         }
 
         body {
