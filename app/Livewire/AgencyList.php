@@ -52,6 +52,7 @@ public function render()
         'rfqs as quoted_count'    => fn($q) => $q->where('status', 'Quoted'),
         'rfqs as awarded_count'   => fn($q) => $q->where('status', 'Awarded'),
         'rfqs as lost_count'      => fn($q) => $q->where('status', 'Lost'),
+        'rfqs as declined_count'  => fn($q) => $q->where('status', 'Declined'),
     ])
         ->when($this->search, fn($q) =>
             $q->where('name', 'like', "%{$this->search}%")

@@ -30,9 +30,9 @@
 
         .prime {
             --surface:    #ffffff;
-            --surface-2:  #f0fdf4;
-            --surface-3:  #dcfce7;
-            --border:     #bbf7d0;
+            --surface-2:  #ffffff;
+            --surface-3:  #f0fdf4;
+            --border:     #14532d;
             --text-1:     #14532d;
             --text-2:     #166534;
             --text-3:     #22c55e;
@@ -175,6 +175,8 @@
         .dark .pill-valid    { background: #14532d; color: #86efac; }
         .dark .pill-expiring { background: #713f12; color: #fde68a; }
         .dark .pill-expired  { background: #7f1d1d; color: #fca5a5; }
+        .prime .data-table thead th { background: #f0fdf4; }
+
         .dark .pill-unknown  { background: var(--surface-3); color: var(--text-2); }
 
         /* ── Summary cards ── */
@@ -494,7 +496,8 @@
 
         {{-- Table --}}
         <div class="panel" style="overflow:hidden;margin-bottom:16px;">
-            <table class="data-table table-fixed w-full">
+            <div class="overflow-x-auto">
+            <table class="data-table table-fixed w-full" style="min-width: 800px">
                 <thead>
                     <tr>
                         <th style="width:5rem;">Actions</th>
@@ -546,6 +549,7 @@
                     @endforeach
                 </tbody>
             </table>
+            </div>
         </div>
 
         {{-- Pagination + rows per page --}}

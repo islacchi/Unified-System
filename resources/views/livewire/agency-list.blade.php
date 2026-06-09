@@ -30,8 +30,8 @@
                class="w-full pl-9 pr-4 py-2 text-sm border border-gray-200 dark:border-[var(--border)] dark:bg-[var(--surface-2)] dark:text-[var(--text-1)] dark:placeholder-[var(--text-3)] prime:border-gray-200 prime:placeholder-gray-400 prime:text-gray-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[var(--accent)] prime:focus:ring-green-500">
     </div>
 <div class="bg-white dark:bg-[var(--surface)] prime:bg-white rounded-xl border border-gray-200 dark:border-[var(--border)] prime:border-green-200 overflow-hidden">
-
-        <table class="w-full text-sm" style="table-layout: fixed">
+        <div class="overflow-x-auto">
+        <table class="w-full text-sm" style="table-layout: fixed; min-width: 1100px">
             <thead class="bg-gray-50 dark:bg-[var(--surface-2)] prime:bg-gray-50 border-b border-gray-200 dark:border-[var(--border)] prime:border-green-200">
                 <tr>
                     <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500 w-48">
@@ -77,9 +77,14 @@
                             Awarded {{ $sortBy === 'awarded_count' ? ($sortDir === 'asc' ? '↑' : '↓') : '' }}
                         </button>
                     </th>
-                    <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500 w-16">
+                     <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500 w-16">
                         <button wire:click="sortColumn('lost_count')" class="flex items-center gap-1 hover:text-gray-900 dark:hover:text-[var(--text-1)] prime:hover:text-gray-900 whitespace-nowrap">
                             Lost {{ $sortBy === 'lost_count' ? ($sortDir === 'asc' ? '↑' : '↓') : '' }}
+                        </button>
+                    </th>
+                     <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500 w-16">
+                        <button wire:click="sortColumn('declined_count')" class="flex items-center gap-1 hover:text-gray-900 dark:hover:text-[var(--text-1)] prime:hover:text-gray-900 whitespace-nowrap">
+                            Declined {{ $sortBy === 'declined_count' ? ($sortDir === 'asc' ? '↑' : '↓') : '' }}
                         </button>
                     </th>
                     <th class="px-4 py-3 w-32"></th>
@@ -133,7 +138,13 @@
                                 {{ $agency->lost_count }}
                             </a>
                         </td>
-                        <td class="px-4 py-3 text-right whitespace-nowrap">
+                        <td class="px-4 py-3">
+                            <a href="{{ route('rfqs.index', ['search' => $agency->name, 'status' => 'Declined']) }}"
+                            class="bg-gray-100 dark:bg-gray-800 text-gray-700 dark:text-gray-300 text-xs font-medium px-2.5 py-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-700 transition">
+                                {{ $agency->declined_count }}
+                            </a>
+                        </td>
+                        <td class="px-4 py-3 text-right whitespace-nowrap pl-6">
                             <div class="flex items-center justify-end gap-2">
                                 <a href="{{ route('agencies.edit', $agency) }}"
                                    class="text-xs border border-gray-200 dark:border-[var(--border)] prime:border-gray-200 dark:text-[var(--text-3)] prime:text-gray-500 dark:hover:text-[var(--text-1)] prime:hover:text-gray-900 dark:hover:border-[var(--accent)] prime:hover:border-green-400 rounded-lg px-3 py-1.5 text-gray-500 hover:text-gray-900 hover:border-gray-400 transition">
@@ -149,13 +160,14 @@
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="11" class="px-4 py-12 text-center text-sm text-gray-400 dark:text-[var(--text-3)] prime:text-gray-400">
+                        <td colspan="12" class="px-4 py-12 text-center text-sm text-gray-400 dark:text-[var(--text-3)] prime:text-gray-400">
                             No agencies found. Add your first one!
                         </td>
                     </tr>
                 @endforelse
             </tbody>
         </table>
+        </div>
         @if ($agencies->hasPages())
             <div class="px-4 py-3 border-t border-gray-100 dark:border-[var(--border)] prime:border-green-200">
                 {{ $agencies->links() }}

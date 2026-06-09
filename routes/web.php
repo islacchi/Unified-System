@@ -50,6 +50,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/cpr/results',      [CprController::class, 'results'])->name('cpr.results');
     Route::get('/cpr/search',       [CprController::class, 'search'])->name('cpr.search');
 
+    // ── RFQ Declined route ─────────────────────────────────────────────────
+    Route::post('/rfqs/{rfq}/decline', [RfqController::class, 'decline'])->name('rfqs.decline');
+
     // ── Profile (self-service) ────────────────────────────────────────────────
     Route::get('/profile/edit', [UserController::class, 'profileEdit'])->name('profile.edit');
     Route::put('/profile',      [UserController::class, 'profileUpdate'])->name('profile.update');

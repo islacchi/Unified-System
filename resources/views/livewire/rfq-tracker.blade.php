@@ -19,7 +19,7 @@
     </div>
 
     {{-- Metrics --}}
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="grid grid-cols-2 md:grid-cols-5 gap-4 mb-6">
         <div wire:click="setStatus('all')"
              class="bg-gray-50 border border-gray-300 dark:bg-[var(--surface)] dark:border dark:border-[var(--border)] prime:bg-green-50 prime:border prime:border-green-900 rounded-xl p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-[var(--surface-3)] prime:hover:bg-green-100 transition {{ $status === 'all' ? 'ring-2 ring-gray-400 dark:ring-[var(--accent)] prime:ring-green-500' : '' }}">
             <p class="text-xs text-gray-500 dark:text-[var(--text-3)] prime:text-green-900 mb-1">Total RFQs</p>
@@ -39,6 +39,11 @@
             <p class="text-xs text-gray-500 dark:text-[var(--text-3)] prime:text-green-900 mb-1">Awarded</p>
             <p class="text-2xl font-semibold text-gray-900 dark:text-[var(--text-1)] prime:text-gray-900">{{ $metrics['awarded'] }}</p>
         </div>
+        <div wire:click="setStatus('Declined')"
+             class="bg-gray-50 border border-gray-300 dark:bg-[var(--surface)] dark:border dark:border-[var(--border)] prime:bg-green-50 prime:border prime:border-green-900 rounded-xl p-4 cursor-pointer hover:bg-gray-100 dark:hover:bg-[var(--surface-3)] prime:hover:bg-green-100 transition {{ $status === 'Declined' ? 'ring-2 ring-gray-400 dark:ring-[var(--accent)] prime:ring-green-500' : '' }}">
+            <p class="text-xs text-gray-500 dark:text-[var(--text-3)] prime:text-green-900 mb-1">Declined</p>
+            <p class="text-2xl font-semibold text-gray-900 dark:text-[var(--text-1)] prime:text-gray-900">{{ $metrics['declined'] }}</p>
+        </div>
     </div>
 
     {{-- Filters --}}
@@ -49,7 +54,7 @@
                    placeholder="Search agency or RFQ no..."
                    class="w-full pl-4 pr-4 py-2 text-sm border border-gray-300 dark:border-[var(--border)] dark:bg-[var(--surface-2)] dark:text-[var(--text-1)] dark:placeholder-[var(--text-3)] prime:border-green-900 prime:bg-white prime:text-green-900 prime:placeholder-green-900 rounded-lg focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[var(--accent)] prime:focus:ring-green-500">
         </div>
-        @foreach (['all', 'Received', 'Reviewing', 'Quoted', 'Awarded', 'Lost'] as $tab)
+        @foreach (['all', 'Received', 'Reviewing', 'Quoted', 'Awarded', 'Lost', 'Declined'] as $tab)
             <button wire:click="setStatus('{{ $tab }}')"
                     class="px-3 py-1.5 rounded-lg text-sm font-medium border transition
                         {{ $status === $tab
@@ -62,7 +67,8 @@
 
     {{-- Table --}}
     <div class="bg-white dark:bg-[var(--surface)] prime:bg-white rounded-xl border border-gray-300 dark:border-[var(--border)] prime:border-green-900 overflow-hidden">
-        <table class="w-full text-sm table-fixed" style="table-layout: fixed">
+        <div class="overflow-x-auto">
+        <table class="w-full text-sm table-fixed" style="table-layout: fixed; min-width: 900px">
             <thead class="bg-gray-50 dark:bg-[var(--surface-2)] prime:bg-green-50 border-b border-gray-300 dark:border-[var(--border)] prime:border-green-300">
                 <tr>
                     <th class="text-left px-4 py-3 text-xs font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-green-700 w-28">
@@ -135,6 +141,7 @@
                                 'Quoted'    => 'bg-green-50 text-green-800 dark:bg-green-950 dark:text-green-300 prime:bg-green-100 prime:text-green-800',
                                 'Awarded'   => 'bg-teal-50 text-teal-800 dark:bg-teal-950 dark:text-teal-300 prime:bg-teal-50 prime:text-teal-800',
                                 'Lost'      => 'bg-red-50 text-red-800 dark:bg-red-950 dark:text-red-400 prime:bg-red-50 prime:text-red-700',
+                                'Declined'  => 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 prime:bg-gray-100 prime:text-gray-700',
                             ];
                             @endphp
                             <span class="px-2.5 py-1 rounded-full text-xs font-medium {{ $colors[$rfq->status] ?? '' }}">
@@ -193,11 +200,11 @@
                                         <label class="flex items-center gap-2 cursor-pointer select-none group">
                                             <input type="checkbox"
                                                    @checked($isChecked)
-                                                   @disabled(in_array($key, ['notice_of_award', 'purchase_order', 'ntp']) && ($rfq->status === 'Lost' || !$allPriced))
+                                                   @disabled(in_array($key, ['notice_of_award', 'purchase_order', 'ntp']) && (in_array($rfq->status, ['Lost', 'Declined']) || !$allPriced))
                                                    wire:click.stop="toggleDoc({{ $rfq->id }}, '{{ $key }}')"
                                                    class="w-4 h-4 rounded border-gray-300 dark:border-[var(--border)] text-blue-600 focus:ring-blue-500 cursor-pointer disabled:opacity-40 disabled:cursor-not-allowed">
                                             @php
-                                                $isDocDisabled = in_array($key, ['notice_of_award', 'purchase_order', 'ntp']) && ($rfq->status === 'Lost' || !$allPriced);
+                                                $isDocDisabled = in_array($key, ['notice_of_award', 'purchase_order', 'ntp']) && (in_array($rfq->status, ['Lost', 'Declined']) || !$allPriced);
                                             @endphp
                                             <span class="text-sm {{ $isDocDisabled ? 'text-gray-400 dark:text-[var(--text-3)] prime:text-gray-400' : 'text-gray-700 dark:text-[var(--text-2)] prime:text-gray-700 group-hover:text-gray-900 dark:group-hover:text-[var(--text-1)] prime:group-hover:text-green-900' }}">{{ $label }}</span>
                                         </label>
@@ -229,6 +236,7 @@
             @endforelse
 
         </table>
+        </div>
         @if ($rfqs->hasPages())
             <div class="px-4 py-3 border-t border-gray-200 dark:border-[var(--border)] prime:border-green-300">
                 {{ $rfqs->links() }}

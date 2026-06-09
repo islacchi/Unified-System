@@ -41,6 +41,7 @@
                     'Quoted'    => 'bg-green-50 text-green-800 dark:bg-green-950 dark:text-green-300 prime:bg-green-100 prime:text-green-800',
                     'Awarded'   => 'bg-teal-50 text-teal-800 dark:bg-teal-950 dark:text-teal-300 prime:bg-green-100 prime:text-green-800',
                     'Lost'      => 'bg-red-50 text-red-800 dark:bg-red-950 dark:text-red-400 prime:bg-green-50 prime:text-green-700',
+                    'Declined'  => 'bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-300 prime:bg-green-50 prime:text-green-700',
                 ];
                 @endphp
                 <span class="px-2.5 py-1 rounded-full text-xs font-medium {{ $colors[$rfq->status] ?? '' }}">
@@ -206,15 +207,27 @@
     {{-- Danger zone --}}
     <div class="bg-white dark:bg-[var(--surface)] prime:bg-white rounded-xl border border-red-100 dark:border-red-900 prime:border-red-200 p-6">
         <p class="text-xs font-medium text-red-400 dark:text-red-400 prime:text-red-700 uppercase tracking-wide mb-3">Danger Zone</p>
-        <form action="{{ route('rfqs.destroy', $rfq) }}" method="POST"
-              onsubmit="return confirm('Are you sure you want to delete {{ $rfq->rfq_number }}?')">
-            @csrf
-            @method('DELETE')
-            <button type="submit"
-                    class="text-sm text-red-600 dark:text-red-400 prime:text-red-400 border border-red-200 dark:border-red-900 prime:border-red-400 px-4 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950 prime:hover:bg-red-50 transition">
-                Delete this RFQ
-            </button>
-        </form>
+        <div class="flex items-center gap-3">
+            @if(!in_array($rfq->status, ['Awarded', 'Lost', 'Declined']))
+            <form action="{{ route('rfqs.decline', $rfq) }}" method="POST"
+                  onsubmit="return confirm('Mark {{ $rfq->rfq_number }} as Declined?')">
+                @csrf
+                <button type="submit"
+                        class="text-sm text-orange-600 dark:text-orange-400 prime:text-orange-500 border border-orange-200 dark:border-orange-900 prime:border-orange-400 px-4 py-2 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-950 prime:hover:bg-orange-50 transition">
+                    Decline
+                </button>
+            </form>
+            @endif
+            <form action="{{ route('rfqs.destroy', $rfq) }}" method="POST"
+                  onsubmit="return confirm('Are you sure you want to delete {{ $rfq->rfq_number }}?')">
+                @csrf
+                @method('DELETE')
+                <button type="submit"
+                        class="text-sm text-red-600 dark:text-red-400 prime:text-red-400 border border-red-200 dark:border-red-900 prime:border-red-400 px-4 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950 prime:hover:bg-red-50 transition">
+                    Delete this RFQ
+                </button>
+            </form>
+        </div>
     </div>
 
 </div>

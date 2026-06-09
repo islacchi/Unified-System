@@ -30,7 +30,7 @@ class RfqController extends Controller
             'date_received' => 'required|date',
             'deadline'      => 'required|date|after_or_equal:date_received',
             'abc'           => 'nullable|numeric|min:0',
-            'status'        => 'required|in:Received,Reviewing,Lost',
+            'status'        => 'required|in:Received,Reviewing,Lost,Declined',
             'notes'         => 'nullable|string',
             'philgeps_ref'  => 'nullable|string',
         ]);
@@ -80,7 +80,7 @@ class RfqController extends Controller
             'date_received' => 'required|date',
             'deadline'      => 'required|date|after_or_equal:date_received',
             'abc'           => 'nullable|numeric|min:0',
-            'status'        => 'required|in:Received,Reviewing,Lost',
+            'status'        => 'required|in:Received,Reviewing,Lost,Declined',
             'notes'         => 'nullable|string',
             'philgeps_ref'  => 'nullable|string',
         ]);
@@ -89,6 +89,24 @@ class RfqController extends Controller
 
         return redirect()->route('rfqs.show', $rfq)
                          ->with('message', "RFQ {$rfq->rfq_number} updated successfully.");
+    }
+
+    /**
+     * Mark an RFQ as Declined.
+     * Similar to "Lost" — the RFQ is no longer active.
+     * Cannot be declined if already Awarded or Lost.
+     */
+    public function decline(Rfq $rfq)
+    {
+        if (in_array($rfq->status, ['Awarded', 'Lost', 'Declined'])) {
+            return redirect()->route('rfqs.show', $rfq)
+                             ->with('message', "Cannot decline an RFQ with status \"{$rfq->status}\".");
+        }
+
+        $rfq->update(['status' => 'Declined']);
+
+        return redirect()->route('rfqs.show', $rfq)
+                         ->with('message', "RFQ {$rfq->rfq_number} marked as Declined.");
     }
 
     /**

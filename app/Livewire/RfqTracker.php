@@ -148,21 +148,23 @@ public function toggleDoc(int $rfqId, string $doc): void
     // -------------------------------------------------------------------------
     // Computed metrics for the dashboard cards at the top of the tracker
     // -------------------------------------------------------------------------
-public function getMetricsProperty(): array
-{
-    $all     = Rfq::count();
-    $pending = Rfq::whereIn('status', ['Received', 'Reviewing'])->count();
-    $quoted  = Rfq::where('status', 'Quoted')->count();
-    $awarded = Rfq::where('status', 'Awarded')->count();
+    public function getMetricsProperty(): array
+    {
+        $all      = Rfq::count();
+        $pending  = Rfq::whereIn('status', ['Received', 'Reviewing'])->count();
+        $quoted   = Rfq::where('status', 'Quoted')->count();
+        $awarded  = Rfq::where('status', 'Awarded')->count();
+        $declined = Rfq::where('status', 'Declined')->count();
 
-    return [
-        'total'    => $all,
-        'pending'  => $pending,
-        'quoted'   => $quoted,
-        'awarded'  => $awarded,
-        'win_rate' => ($quoted + $awarded) > 0 ? round(($awarded / ($quoted + $awarded)) * 100) : 0,
-    ];
-}
+        return [
+            'total'    => $all,
+            'pending'  => $pending,
+            'quoted'   => $quoted,
+            'awarded'  => $awarded,
+            'declined' => $declined,
+            'win_rate' => ($quoted + $awarded) > 0 ? round(($awarded / ($quoted + $awarded)) * 100) : 0,
+        ];
+    }
     // -------------------------------------------------------------------------
     // Render — builds the paginated, filtered, sorted RFQ list
     // -------------------------------------------------------------------------
