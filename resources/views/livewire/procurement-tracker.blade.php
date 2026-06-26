@@ -84,28 +84,65 @@
                             </td>
                             <td class="py-3 px-4 text-center">{{ $procurement->items->count() }}</td>
                             <td class="py-3 px-4 text-right">
-                                <div class="flex items-center justify-end gap-2">
+                            <div class="relative inline-block text-left" x-data="{ open: false }" @click.outside="open = false">
+                                <button @click="open = !open"
+                                        class="p-1.5 rounded-lg text-gray-400 hover:text-gray-600 hover:bg-gray-100 dark:hover:bg-[var(--surface-3)] dark:hover:text-[var(--text-1)] prime:hover:bg-green-50 prime:hover:text-gray-700 transition">
+                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="currentColor" viewBox="0 0 24 24">
+                                        <circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/>
+                                    </svg>
+                                </button>
+
+                                <div x-show="open"
+                                    x-transition:enter="transition ease-out duration-100"
+                                    x-transition:enter-start="opacity-0 scale-95"
+                                    x-transition:enter-end="opacity-100 scale-100"
+                                    x-transition:leave="transition ease-in duration-75"
+                                    x-transition:leave-start="opacity-100 scale-100"
+                                    x-transition:leave-end="opacity-0 scale-95"
+                                    class="absolute right-0 z-50 mt-1 w-40 rounded-lg bg-white dark:bg-[var(--surface-2)] prime:bg-white border border-gray-200 dark:border-[var(--border)] prime:border-green-900 shadow-lg py-1"
+                                    style="display: none;">
+
                                     <a href="{{ route('procurements.show', $procurement) }}"
-                                       class="text-gray-600 dark:text-[var(--text-2)] prime:text-gray-600 hover:text-gray-900 dark:hover:text-[var(--text-1)] prime:hover:text-gray-900 transition">
+                                    class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-[var(--text-2)] prime:text-gray-700 hover:bg-gray-50 dark:hover:bg-[var(--surface-3)] prime:hover:bg-green-50 transition">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.477 0 8.268 2.943 9.542 7-1.274 4.057-5.065 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/>
+                                        </svg>
                                         View
                                     </a>
+
+                                    <a href="{{ route('procurements.print', $procurement) }}" target="_blank"
+                                    class="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 dark:text-[var(--text-2)] prime:text-gray-700 hover:bg-gray-50 dark:hover:bg-[var(--surface-3)] prime:hover:bg-green-50 transition">
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+                                        </svg>
+                                        Print
+                                    </a>
+
                                     @if($procurement->status === 'Draft')
                                         <a href="{{ route('procurements.edit', $procurement) }}"
-                                           class="text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300 transition">
+                                        class="flex items-center gap-2 px-3 py-2 text-sm text-blue-600 dark:text-blue-400 prime:text-blue-600 hover:bg-gray-50 dark:hover:bg-[var(--surface-3)] prime:hover:bg-green-50 transition">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/>
+                                            </svg>
                                             Edit
                                         </a>
-                                        <button wire:click="delete({{ $procurement->id }})" wire:confirm="Are you sure you want to delete this procurement?"
-                                                class="text-red-600 dark:text-red-400 hover:text-red-800 dark:hover:text-red-300 transition">
+
+                                        <div class="border-t border-gray-100 dark:border-[var(--border)] prime:border-green-100 my-1"></div>
+
+                                        <button wire:click="delete({{ $procurement->id }})"
+                                                wire:confirm="Are you sure you want to delete this procurement?"
+                                                @click="open = false"
+                                                class="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-600 dark:text-red-400 prime:text-red-600 hover:bg-red-50 dark:hover:bg-red-950 prime:hover:bg-red-50 transition">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+                                            </svg>
                                             Delete
                                         </button>
                                     @endif
-                                    <a href="{{ route('procurements.print', $procurement) }}"
-                                       class="text-gray-600 dark:text-[var(--text-2)] prime:text-gray-600 hover:text-gray-900 dark:hover:text-[var(--text-1)] prime:hover:text-gray-900 transition"
-                                       target="_blank">
-                                        Print
-                                    </a>
                                 </div>
-                            </td>
+                            </div>
+                        </td>
                         </tr>
                     @empty
                         <tr>
