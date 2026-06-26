@@ -8,7 +8,9 @@ use App\Http\Controllers\CprController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\SettingsController;
+use App\Http\Controllers\ProcurementController;
 use App\Livewire\ActivityLogPage;
+use App\Livewire\ProcurementTracker;
 
 // ── Auth routes (guest only) ─────────────────────────────────────────────────
 Route::middleware('guest')->group(function () {
@@ -53,6 +55,17 @@ Route::middleware('auth')->group(function () {
 
     // ── RFQ Declined route ─────────────────────────────────────────────────
     Route::post('/rfqs/{rfq}/decline', [RfqController::class, 'decline'])->name('rfqs.decline');
+
+    // ── Procurement routes ─────────────────────────────────────────────────
+    Route::get('/procurements', [ProcurementTracker::class, '__invoke'])->name('procurements.index');
+    Route::get('/procurements/create', [ProcurementController::class, 'create'])->name('procurements.create');
+    Route::post('/procurements', [ProcurementController::class, 'store'])->name('procurements.store');
+    Route::get('/procurements/{procurement}', [ProcurementController::class, 'show'])->name('procurements.show');
+    Route::get('/procurements/{procurement}/edit', [ProcurementController::class, 'edit'])->name('procurements.edit');
+    Route::put('/procurements/{procurement}', [ProcurementController::class, 'update'])->name('procurements.update');
+    Route::delete('/procurements/{procurement}', [ProcurementController::class, 'destroy'])->name('procurements.destroy');
+    Route::get('/procurements/{procurement}/print', [ProcurementController::class, 'print'])->name('procurements.print');
+    Route::get('/procurements/{procurement}/export', [ProcurementController::class, 'export'])->name('procurements.export');
 
     // ── Profile (self-service) ────────────────────────────────────────────────
     Route::get('/profile/edit', [UserController::class, 'profileEdit'])->name('profile.edit');

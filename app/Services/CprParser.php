@@ -67,7 +67,7 @@ class CprParser
         // CPRs vary — expiry date and registration number are not
         // always on the first page.
         $text = '';
-        foreach (array_slice($pages, 0, 5) as $page) {
+        foreach (array_slice($pages, 0, 2) as $page) {
             $text .= $page->getText() . "\n";
         }
 
@@ -87,7 +87,7 @@ class CprParser
             copy($filePath, $safePdf);
 
             $command = sprintf(
-                '"%s" -png -f 1 -l 1 -r 300 "%s" "%s"',
+                '"%s" -png -f 1 -l 1 -r 150 "%s" "%s"',
                 'C:\poppler-26.02.0\Library\bin\pdftoppm.exe',
                 $safePdf,
                 $outputBase

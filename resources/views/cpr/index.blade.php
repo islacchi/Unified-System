@@ -723,7 +723,7 @@
             searchInput.addEventListener('input', function () {
                 clearTimeout(searchTimeout);
                 searchTimeout = setTimeout(() => {
-                    fetch(`/cpr/search?search=${encodeURIComponent(this.value)}&per_page={{ $perPage ?? 10 }}`)
+                    fetch(`{{ route('cpr.search') }}?search=${encodeURIComponent(this.value)}&per_page={{ $perPage ?? 10 }}`)
                         .then(r => r.json())
                         .then(data => {
                             updateTable(data.results);
@@ -746,7 +746,7 @@
                 const expiry = cpr.expiry_date ? new Date(cpr.expiry_date).toLocaleDateString('en-US',{month:'short',day:'2-digit',year:'numeric'}) : '—';
                 const days   = cpr.days_remaining !== null ? `<span class="${dayClass(cpr.days_remaining)}">${cpr.days_remaining}d</span>` : `<span style="color:var(--text-3)">—</span>`;
                 return `<tr>
-                    <td><a href="/cpr/edit/${cpr.id}" class="edit-link">Edit</a></td>
+                    <td><a href="{{ route('cpr.edit', ['id' => '__ID__']) }}".replace('__ID__', cpr.id) class="edit-link">Edit</a></td>
                     <td><div style="font-weight:500;font-size:13.5px;">${cpr.normalized_filename ?? cpr.filename}</div><div class="file-sub">${cpr.filename}</div></td>
                     <td class="reg-num">${cpr.registration_number ?? '—'}</td>
                     <td style="font-weight:600;">${cpr.brand_name ?? '—'}</td>
@@ -788,7 +788,7 @@
             }, 2500);
             if (!folderPath) return;
             if (sseSource) { sseSource.close(); sseSource = null; }
-           sseSource = new EventSource(`/cpr/progress?folder_path=${encodeURIComponent(folderPath)}`);
+           sseSource = new EventSource(`{{ route('cpr.progress') }}?folder_path=${encodeURIComponent(folderPath)}`);
             sseSource.onmessage = function (e) {
                 const data = JSON.parse(e.data);
                 document.getElementById('loading-msg').textContent = data.msg;

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYPE html> 
 <html lang="en" id="app-root">
 <head>
     <meta charset="UTF-8">
@@ -70,6 +70,15 @@
                            ? 'bg-gray-900 text-white dark:bg-[var(--accent)] dark:text-white prime:bg-green-600 prime:text-white'
                            : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-[var(--text-3)] dark:hover:text-[var(--text-1)] dark:hover:bg-[var(--surface-3)] prime:text-green-700 prime:hover:text-gray-900 prime:hover:bg-green-50' }}">
                     CPR Tracker
+                </a>
+
+                {{-- Procurement --}}
+                <a href="{{ route('procurements.index') }}"
+                   class="px-4 py-2 rounded-lg transition font-medium
+                       {{ request()->is('procurements*')
+                           ? 'bg-gray-900 text-white dark:bg-[var(--accent)] dark:text-white prime:bg-green-600 prime:text-white'
+                           : 'text-gray-500 hover:text-gray-900 hover:bg-gray-100 dark:text-[var(--text-3)] dark:hover:text-[var(--text-1)] dark:hover:bg-[var(--surface-3)] prime:text-green-700 prime:hover:text-gray-900 prime:hover:bg-green-50' }}">
+                    Procurement
                 </a>
 
                 {{-- Users — admin only --}}

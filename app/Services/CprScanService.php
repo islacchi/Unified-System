@@ -325,13 +325,19 @@ $existingRecords = CprRecord::whereIn('filename', $filenames)
     /**
      * Build a single upsert row from a parsed result.
      */
-    private function buildRow(string $file, array $parsed, string $folderPath, $now): array
+private function buildRow(string $file, array $parsed, string $folderPath, $now): array
     {
         $filename  = basename($file);
         $computed = CprRecord::resolveStatus($parsed['expiry_date'] ?? null, 90, $parsed['brand_name'] ?? null);
 
+        // Extract leading number from filename for sort order
+        // Handles formats: "1. CPR-...", "1.CPR...", "21 CPR...", "21. CPR..."
+        preg_match('/^(\d+)[\.\s]/', $filename, $sortMatch);
+        $filenameSort = isset($sortMatch[1]) ? (int) $sortMatch[1] : 999999;
+
         return [
             'filename'            => $filename,
+            'filename_sort'       => $filenameSort,
             'folder_path'         => $folderPath,
             'normalized_filename' => CprRecord::buildNormalizedFilename(
                 $parsed['generic_name'],
@@ -364,9 +370,9 @@ $existingRecords = CprRecord::whereIn('filename', $filenames)
                     $chunk,
                     ['filename'],
                     [
-                        'folder_path', 'normalized_filename', 'registration_number',
+                       'folder_path', 'normalized_filename', 'registration_number',
                         'brand_name', 'generic_name', 'expiry_date',
-                        'days_remaining', 'status', 'updated_at',
+                        'days_remaining', 'status', 'updated_at', 'filename_sort', 
                     ]
                 );
             });
