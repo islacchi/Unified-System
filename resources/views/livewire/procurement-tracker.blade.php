@@ -53,8 +53,8 @@
                         <th class="text-left py-3 px-4 font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500">Delivery Deadline</th>
                         <th class="text-left py-3 px-4 font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500">Total Amount</th>
                         <th class="text-left py-3 px-4 font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500">Status</th>
-                        <th class="text-left py-3 px-4 font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500">Items</th>
-                        <th class="text-right py-3 px-4 font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500">Actions</th>
+                        <th class="text-center py-3 px-4 font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500">Items</th>
+                        <th class="text-center py-3 px-4 font-medium text-gray-500 dark:text-[var(--text-3)] prime:text-gray-500">Actions</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -89,7 +89,7 @@
                                 </span>
                             </td>
                             <td class="py-3 px-4 text-center">{{ $procurement->items->count() }}</td>
-                            <td class="py-3 px-4 text-right">
+                            <td class="py-3 px-4 text-center">
                                 {{--
                                     Dropdown uses position:fixed with viewport coords to escape
                                     overflow clipping from the overflow-x-auto scroll container.
