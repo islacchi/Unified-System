@@ -11,32 +11,89 @@
     </div>
 
     {{-- Filters --}}
-    <div class="bg-white dark:bg-[var(--surface)] prime:bg-white rounded-xl border border-gray-200 dark:border-[var(--border)] prime:border-green-900 p-4 mb-4">
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
-            <div>
-                <input type="text" wire:model.live="search" placeholder="Search procurement #"
-                       class="w-full border border-gray-200 dark:border-[var(--border)] prime:border-green-900 dark:bg-[var(--surface-2)] dark:text-[var(--text-1)] dark:placeholder-[var(--text-3)] prime:text-gray-900 prime:placeholder-green-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[var(--accent)] prime:focus:ring-green-500">
+    <div class="mb-4">
+        <div class="flex gap-2">
+            {{-- Combined search --}}
+            <div class="flex-1">
+                <input type="text" wire:model.live="search" placeholder="Search item / brand / procurement no..."
+                    class="w-full border border-gray-200 dark:border-[var(--border)] prime:border-green-900 dark:bg-[var(--surface)] dark:text-[var(--text-1)] dark:placeholder-[var(--text-3)] prime:text-gray-900 prime:placeholder-green-600 bg-white rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[var(--accent)] prime:focus:ring-green-500">
             </div>
-            <div>
-                <select wire:model.live="statusFilter"
-                        class="w-full border border-gray-200 dark:border-[var(--border)] prime:border-green-900 dark:bg-[var(--surface-2)] dark:text-[var(--text-1)] prime:text-gray-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[var(--accent)] prime:focus:ring-green-500">
-                    <option value="">All Statuses</option>
-                    @foreach($statuses as $status)
-                        <option value="{{ $status }}">{{ $status }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div>
-                <input type="text" wire:model.live="itemSearch" placeholder="Search item name or brand..."
-                       class="w-full border border-gray-200 dark:border-[var(--border)] prime:border-green-900 dark:bg-[var(--surface-2)] dark:text-[var(--text-1)] dark:placeholder-[var(--text-3)] prime:text-gray-900 prime:placeholder-green-600 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[var(--accent)] prime:focus:ring-green-500">
-            </div>
-            <div>
-                <input type="date" wire:model.live="dateFrom" placeholder="From date"
-                       class="w-full border border-gray-200 dark:border-[var(--border)] prime:border-green-900 dark:bg-[var(--surface-2)] dark:text-[var(--text-1)] prime:text-gray-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[var(--accent)] prime:focus:ring-green-500">
-            </div>
-            <div>
-                <input type="date" wire:model.live="dateTo" placeholder="To date"
-                       class="w-full border border-gray-200 dark:border-[var(--border)] prime:border-green-900 dark:bg-[var(--surface-2)] dark:text-[var(--text-1)] prime:text-gray-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[var(--accent)] prime:focus:ring-green-500">
+
+            {{-- Filters button + dropdown --}}
+            <div class="relative"
+                x-data="{
+                    open: false,
+                    get activeCount() {
+                        let count = 0;
+                        if ($wire.statusFilter) count++;
+                        if ($wire.dateFrom) count++;
+                        if ($wire.dateTo) count++;
+                        return count;
+                    }
+                }"
+                @click.outside="open = false"
+                @keydown.escape.window="open = false">
+
+                <button @click="open = !open"
+                        class="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-gray-200 dark:border-[var(--border)] prime:border-green-900 bg-white dark:bg-[var(--surface)] prime:bg-white text-sm text-gray-700 dark:text-[var(--text-2)] prime:text-gray-700 hover:bg-gray-50 dark:hover:bg-[var(--surface-3)] prime:hover:bg-green-50 transition">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2a1 1 0 01-.293.707L13 13.414V19a1 1 0 01-.553.894l-4 2A1 1 0 017 21v-7.586L3.293 6.707A1 1 0 013 6V4z"/>
+                    </svg>
+                    Filters
+                    <span x-show="activeCount > 0"
+                        x-text="'· ' + activeCount"
+                        class="text-blue-600 dark:text-[var(--accent)] prime:text-green-700 font-semibold tabular-nums">
+                    </span>
+                </button>
+
+                {{-- Dropdown panel --}}
+                <div x-show="open"
+                    x-transition:enter="transition ease-out duration-100"
+                    x-transition:enter-start="opacity-0 scale-95"
+                    x-transition:enter-end="opacity-100 scale-100"
+                    x-transition:leave="transition ease-in duration-75"
+                    x-transition:leave-start="opacity-100 scale-100"
+                    x-transition:leave-end="opacity-0 scale-95"
+                    class="absolute right-0 top-full mt-2 z-50 w-80 rounded-xl bg-white dark:bg-[var(--surface-2)] prime:bg-white border border-gray-200 dark:border-[var(--border)] prime:border-green-900 shadow-lg p-4"
+                    style="display: none;">
+
+                    <div class="flex items-center justify-between mb-3">
+                        <p class="text-xs font-medium text-gray-400 dark:text-[var(--text-3)] prime:text-gray-500 uppercase tracking-wide">Filters</p>
+                        <button type="button"
+                                wire:click="$set('statusFilter', ''); $set('dateFrom', ''); $set('dateTo', '')"
+                                @click="open = false"
+                                x-show="activeCount > 0"
+                                class="text-xs text-red-500 hover:text-red-700 transition">
+                            Clear all
+                        </button>
+                    </div>
+
+                    {{-- Status --}}
+                    <div class="mb-3">
+                        <label class="block text-xs font-medium text-gray-600 dark:text-[var(--text-2)] prime:text-gray-700 mb-1">Status</label>
+                        <select wire:model.live="statusFilter"
+                                class="w-full border border-gray-200 dark:border-[var(--border)] prime:border-green-900 dark:bg-[var(--surface-2)] dark:text-[var(--text-1)] prime:text-gray-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[var(--accent)] prime:focus:ring-green-500">
+                            <option value="">All Statuses</option>
+                            @foreach($statuses as $status)
+                                <option value="{{ $status }}">{{ $status }}</option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    {{-- Date range --}}
+                    <div class="flex flex-col gap-2">
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 dark:text-[var(--text-2)] prime:text-gray-700 mb-1">From:</label>
+                            <input type="date" wire:model.live="dateFrom"
+                                class="w-full border border-gray-200 dark:border-[var(--border)] prime:border-green-900 dark:bg-[var(--surface-2)] dark:text-[var(--text-1)] prime:text-gray-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[var(--accent)] prime:focus:ring-green-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-medium text-gray-600 dark:text-[var(--text-2)] prime:text-gray-700 mb-1">To:</label>
+                            <input type="date" wire:model.live="dateTo"
+                                class="w-full border border-gray-200 dark:border-[var(--border)] prime:border-green-900 dark:bg-[var(--surface-2)] dark:text-[var(--text-1)] prime:text-gray-900 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[var(--accent)] prime:focus:ring-green-500">
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

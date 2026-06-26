@@ -48,7 +48,13 @@ class ProcurementTracker extends Component
         $query = Procurement::with(['preparedBy', 'items.agency']);
 
         if ($this->search) {
-            $query->where('procurement_number', 'like', "%{$this->search}%");
+            $query->where(function ($q) {
+                $q->where('procurement_number', 'like', "%{$this->search}%")
+                ->orWhereHas('items', function ($q2) {
+                    $q2->where('item_description', 'like', "%{$this->search}%")
+                        ->orWhere('brand', 'like', "%{$this->search}%");
+                });
+            });
         }
 
         if ($this->statusFilter) {
@@ -61,13 +67,6 @@ class ProcurementTracker extends Component
 
         if ($this->dateTo) {
             $query->whereDate('date_prepared', '<=', $this->dateTo);
-        }
-
-        if ($this->itemSearch) {
-            $query->whereHas('items', function($q) {
-                $q->where('item_description', 'like', "%{$this->itemSearch}%")
-                  ->orWhere('brand', 'like', "%{$this->itemSearch}%");
-            });
         }
 
         $procurements = $query->orderByDesc('date_prepared')->paginate(15);
