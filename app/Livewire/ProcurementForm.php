@@ -186,6 +186,7 @@ class ProcurementForm extends Component
                 : ActivityLog::log('procurement.updated', $procurement);
         } else {
             $validated['procurement_number'] = Procurement::generateNumber();
+            $validated['prepared_by'] = auth()->id();
             $procurement = Procurement::create($validated);
             ActivityLog::log('procurement.created', $procurement);
         }
