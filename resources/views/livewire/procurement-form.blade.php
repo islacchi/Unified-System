@@ -82,15 +82,36 @@
                     <input type="text" wire:model.live="rfqSearch" placeholder="Search RFQ number or agency name..."
                            class="w-full border border-gray-200 dark:border-[var(--border)] prime:border-green-900 dark:bg-[var(--surface-2)] dark:text-[var(--text-1)] dark:placeholder-[var(--text-3)] prime:text-gray-900 prime:placeholder-green-600 rounded-lg px-3 py-2 text-sm mb-3 focus:outline-none focus:ring-2 focus:ring-gray-400 dark:focus:ring-[var(--accent)] prime:focus:ring-green-500">
 
-                    @if($selectedRfqId)
+                    @if($selectedRfq)
                         <div class="mb-3 p-3 bg-blue-50 dark:bg-blue-950 prime:bg-blue-50 rounded-lg">
                             <p class="text-sm text-blue-800 dark:text-blue-300 prime:text-blue-800">
-                                Selected RFQ: <strong>{{ $selectedRfqId }}</strong>
+                                Selected RFQ: <strong>{{ $selectedRfq->rfq_number }}</strong>
                             </p>
                             <button type="button" wire:click="addRfqItems" wire:loading.attr="disabled"
                                     class="mt-2 text-sm px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
                                 Add Items to Procurement
                             </button>
+                        </div>
+                    @endif
+
+                    @if($showDuplicateWarning)
+                        <div class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+                            <div class="bg-white dark:bg-[var(--surface)] prime:bg-white rounded-xl border border-gray-200 dark:border-[var(--border)] prime:border-green-900 p-6 max-w-md w-full mx-4 shadow-xl">
+                                <h3 class="text-lg font-semibold text-gray-900 dark:text-[var(--text-1)] prime:text-gray-900 mb-2">Duplicate RFQ Detected</h3>
+                                <p class="text-sm text-gray-600 dark:text-[var(--text-3)] prime:text-gray-500 mb-6">
+                                    All items from <strong>{{ $selectedRfq->rfq_number }}</strong> are already in the procurement list. Do you still want to add them again?
+                                </p>
+                                <div class="flex items-center justify-end gap-3">
+                                    <button type="button" wire:click="cancelAddRfq"
+                                            class="px-4 py-2 rounded-lg border border-gray-200 dark:border-[var(--border)] prime:border-green-900 text-gray-700 dark:text-[var(--text-2)] prime:text-gray-900 hover:bg-gray-50 dark:hover:bg-[var(--surface-3)] prime:hover:bg-green-50 transition text-sm">
+                                        Cancel
+                                    </button>
+                                    <button type="button" wire:click="confirmAddRfq"
+                                            class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition text-sm font-medium">
+                                        Add Anyway
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     @endif
 
@@ -123,10 +144,18 @@
         <div class="bg-white dark:bg-[var(--surface)] prime:bg-white rounded-xl border border-gray-200 dark:border-[var(--border)] prime:border-green-900 p-6 mb-4">
             <div class="flex items-center justify-between mb-4">
                 <p class="text-xs font-medium text-gray-400 dark:text-[var(--accent)] prime:text-green-700 uppercase tracking-wide">Items</p>
-                <button type="button" wire:click="addItem"
-                        class="text-sm px-4 py-2 rounded-lg border border-gray-200 dark:border-[var(--border)] prime:border-green-900 text-gray-700 dark:text-[var(--text-2)] prime:text-gray-900 hover:bg-gray-50 dark:hover:bg-[var(--surface-3)] prime:hover:bg-green-50 transition">
-                    + Add Item
-                </button>
+                <div class="flex items-center gap-2">
+                    @if(count(array_filter($items, fn($item) => trim($item['item_description'] ?? '') !== '' || trim($item['unit'] ?? '') !== '' || trim($item['quantity'] ?? '') !== '')) > 0)
+                        <button type="button" wire:click="clearItems"
+                                class="text-sm px-3 py-2 rounded-lg border border-red-200 dark:border-red-900 prime:border-red-200 text-red-600 dark:text-red-400 prime:text-red-700 hover:bg-red-50 dark:hover:bg-red-950 prime:hover:bg-red-50 transition">
+                            Clear All
+                        </button>
+                    @endif
+                    <button type="button" wire:click="addItem"
+                            class="text-sm px-4 py-2 rounded-lg border border-gray-200 dark:border-[var(--border)] prime:border-green-900 text-gray-700 dark:text-[var(--text-2)] prime:text-gray-900 hover:bg-gray-50 dark:hover:bg-[var(--surface-3)] prime:hover:bg-green-50 transition">
+                        + Add Item
+                    </button>
+                </div>
             </div>
 
             @if(count($items) > 0)
@@ -211,14 +240,20 @@
                         </tbody>
                         <tfoot>
                             <tr class="border-t-2 border-gray-200 dark:border-[var(--border)] prime:border-green-900">
+<<<<<<< Updated upstream
                                 <td colspan="6" class="py-3 px-2 text-right font-semibold text-gray-900 dark:text-[var(--text-1)] prime:text-gray-900">Total Amount:</td>
                                 <td class="py-3 px-2 text-right font-semibold text-gray-900 dark:text-[var(--text-1)] prime:text-gray-900">
                                     <span class="inline-flex items-center justify-end gap-0.5">
                                         <span class="text-sm">₱ </span>
                                         <span class="font-mono">{{ number_format(collect($this->items)->sum(fn($item) => (float) ($item['unit_price'] ?? 0) * (float) ($item['quantity'] ?? 0)), 2) }}</span>
                                     </span>
+=======
+                                <td colspan="7" class="py-3 px-2 text-right font-semibold text-gray-900 dark:text-[var(--text-1)] prime:text-gray-900">Total Amount:</td>
+                                <td class="py-3 px-2 text-right font-mono font-semibold text-gray-900 dark:text-[var(--text-1)] prime:text-gray-900">
+                                    <span style="white-space: nowrap;">₱ {{ number_format(collect($this->items)->sum(fn($item) => (float) ($item['unit_price'] ?? 0) * (float) ($item['quantity'] ?? 0)), 2) }}</span>
+>>>>>>> Stashed changes
                                 </td>
-                                <td colspan="2"></td>
+                                <td colspan="1"></td>
                             </tr>
                         </tfoot>
                     </table>

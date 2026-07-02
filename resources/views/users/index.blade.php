@@ -68,7 +68,7 @@
                                     Edit
                                 </a>
                                 <form action="{{ route('users.destroy', $user) }}" method="POST"
-                                      onsubmit="return confirm('Delete {{ $user->name }}?')">
+                                      @submit.prevent="$dispatch('open-confirm', {title: 'Delete User?', message: 'Are you sure you want to delete {{ $user->name }}?', action: $el.submit()})">
                                     @csrf
                                     @method('DELETE')
                                     <button type="submit"

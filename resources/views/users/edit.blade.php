@@ -135,7 +135,7 @@
                         Resets the user's password to the system default. Admin can change the default in Settings.
                     </p>
                 <button type="button"
-                        onclick="if(confirm('Reset password for {{ $user->name }} to the default password?')) { document.getElementById('reset-pw-form').submit(); }"
+                        @click="confirmModal.confirm('Reset Password?', 'Reset password for {{ $user->name }} to the default password?', () => document.getElementById('reset-pw-form').submit())"
                         class="w-full px-4 py-2.5 text-sm font-medium rounded-lg border border-red-200 dark:border-red-900 prime:border-red-200 text-red-600 dark:text-red-400 prime:text-red-600 hover:bg-red-50 dark:hover:bg-red-950 prime:hover:bg-red-50 transition">
                     Reset Password to Default
                 </button>

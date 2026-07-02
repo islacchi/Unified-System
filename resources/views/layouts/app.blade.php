@@ -7,10 +7,13 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
     @livewireStyles
     <script>
-        const theme = localStorage.getItem('theme') || 'light';
-        if (theme === 'dark') document.documentElement.classList.add('dark');
-        if (theme === 'prime') document.documentElement.classList.add('prime');
+        window.confirmAction = function(msg) {
+            return confirm(msg);
+        };
     </script>
+    <style>
+        [x-cloak] { display: none !important; }
+    </style>
 </head>
 <body class="bg-gray-50 text-gray-900 min-h-screen dark:bg-[var(--surface-2)] dark:text-[var(--text-1)] prime:bg-white prime:text-gray-900"
       x-data="{
@@ -23,8 +26,16 @@
               document.documentElement.classList.remove('dark', 'prime');
               if (this.theme === 'dark') document.documentElement.classList.add('dark');
               if (this.theme === 'prime') document.documentElement.classList.add('prime');
+          },
+          confirmModal: { show: false, title: '', message: '', onConfirm: null },
+          confirm(text, message, callback) {
+              this.confirmModal.title = text;
+              this.confirmModal.message = message;
+              this.confirmModal.onConfirm = callback;
+              this.confirmModal.show = true;
           }
-      }">
+      }"
+      @open-confirm.window="confirm($event.detail.title, $event.detail.message, $event.detail.action)">
 
     {{-- Navbar --}}
     <nav class="bg-white dark:bg-[var(--surface)] prime:bg-white border-b border-gray-200 dark:border-[var(--border)] prime:border-green-200 px-6 py-0 sticky top-0 z-50 shadow-sm">
@@ -194,5 +205,32 @@
 
 @livewire('chat-box')
 @livewireScripts
+
+{{-- Global Confirm Modal --}}
+<div
+     x-show="confirmModal.show"
+     x-cloak
+     x-transition:enter="transition ease-out duration-150"
+     x-transition:enter-start="opacity-0"
+     x-transition:enter-end="opacity-100"
+     x-transition:leave="transition ease-in duration-100"
+     x-transition:leave-start="opacity-100"
+     x-transition:leave-end="opacity-0"
+     class="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+    <div class="bg-white dark:bg-[var(--surface)] prime:bg-white rounded-xl border border-gray-200 dark:border-[var(--border)] prime:border-green-900 p-6 max-w-md w-full mx-4 shadow-xl">
+        <h3 class="text-lg font-semibold text-gray-900 dark:text-[var(--text-1)] prime:text-gray-900 mb-2" x-text="confirmModal.title"></h3>
+        <p class="text-sm text-gray-600 dark:text-[var(--text-3)] prime:text-gray-500 mb-6" x-text="confirmModal.message"></p>
+        <div class="flex items-center justify-end gap-3">
+            <button type="button" @click="confirmModal.show = false"
+                    class="px-4 py-2 rounded-lg border border-gray-200 dark:border-[var(--border)] prime:border-green-900 text-gray-700 dark:text-[var(--text-2)] prime:text-gray-900 hover:bg-gray-50 dark:hover:bg-[var(--surface-3)] prime:hover:bg-green-50 transition text-sm">
+                Cancel
+            </button>
+            <button type="button" @click="if(confirmModal.onConfirm) confirmModal.onConfirm(); confirmModal.show = false"
+                    class="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition text-sm font-medium">
+                Confirm
+            </button>
+        </div>
+    </div>
+</div>
 </body>
 </html>

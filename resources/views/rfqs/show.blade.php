@@ -209,24 +209,24 @@
         <p class="text-xs font-medium text-red-400 dark:text-red-400 prime:text-red-700 uppercase tracking-wide mb-3">Danger Zone</p>
         <div class="flex items-center gap-3">
             @if(!in_array($rfq->status, ['Awarded', 'Lost', 'Declined']))
-            <form action="{{ route('rfqs.decline', $rfq) }}" method="POST"
-                  onsubmit="return confirm('Mark {{ $rfq->rfq_number }} as Declined?')">
+            <form id="decline-form-{{ $rfq->id }}" action="{{ route('rfqs.decline', $rfq) }}" method="POST" style="display:none">
                 @csrf
-                <button type="submit"
-                        class="text-sm text-orange-600 dark:text-orange-400 prime:text-orange-500 border border-orange-200 dark:border-orange-900 prime:border-orange-400 px-4 py-2 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-950 prime:hover:bg-orange-50 transition">
-                    Decline
-                </button>
             </form>
+            <button type="button"
+                    onclick="window.dispatchEvent(new CustomEvent('open-confirm', {detail: {title: 'Decline RFQ?', message: 'Mark {{ $rfq->rfq_number }} as Declined?', action: () => document.getElementById('decline-form-{{ $rfq->id }}').submit()}}))"
+                    class="text-sm text-orange-600 dark:text-orange-400 prime:text-orange-500 border border-orange-200 dark:border-orange-900 prime:border-orange-400 px-4 py-2 rounded-lg hover:bg-orange-50 dark:hover:bg-orange-950 prime:hover:bg-orange-50 transition">
+                Decline
+            </button>
             @endif
-            <form action="{{ route('rfqs.destroy', $rfq) }}" method="POST"
-                  onsubmit="return confirm('Are you sure you want to delete {{ $rfq->rfq_number }}?')">
+            <form id="delete-form-{{ $rfq->id }}" action="{{ route('rfqs.destroy', $rfq) }}" method="POST" style="display:none">
                 @csrf
                 @method('DELETE')
-                <button type="submit"
-                        class="text-sm text-red-600 dark:text-red-400 prime:text-red-400 border border-red-200 dark:border-red-900 prime:border-red-400 px-4 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950 prime:hover:bg-red-50 transition">
-                    Delete this RFQ
-                </button>
             </form>
+            <button type="button"
+                    onclick="window.dispatchEvent(new CustomEvent('open-confirm', {detail: {title: 'Delete RFQ?', message: 'Are you sure you want to delete {{ $rfq->rfq_number }}?', action: () => document.getElementById('delete-form-{{ $rfq->id }}').submit()}}))"
+                    class="text-sm text-red-600 dark:text-red-400 prime:text-red-400 border border-red-200 dark:border-red-900 prime:border-red-400 px-4 py-2 rounded-lg hover:bg-red-50 dark:hover:bg-red-950 prime:hover:bg-red-50 transition">
+                Delete this RFQ
+            </button>
         </div>
     </div>
 

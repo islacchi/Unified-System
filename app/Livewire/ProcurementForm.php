@@ -18,6 +18,7 @@ class ProcurementForm extends Component
     public string $delivery_deadline = '';
     public string $status = 'Draft';
     public string $notes = '';
+    public string $prepared_by = '';
 
     public array $items = [
         [
@@ -36,6 +37,7 @@ class ProcurementForm extends Component
     public string $rfqSearch = '';
     public ?int $selectedRfqId = null;
     public bool $showRfqPicker = false;
+    public bool $showDuplicateWarning = false;
     public ?int $procurementId = null;
 
     public function mount(?int $procurementId = null): void
@@ -49,6 +51,7 @@ class ProcurementForm extends Component
             $this->delivery_deadline = $procurement->delivery_deadline ? $procurement->delivery_deadline->format('Y-m-d') : '';
             $this->status = $procurement->status;
             $this->notes = $procurement->notes ?? '';
+            $this->prepared_by = $procurement->preparedBy?->name ?? '';
 
             $this->items = array_values($procurement->items->map(fn($i) => [
                 'agency_id' => (string) ($i->agency_id ?? ''),
@@ -64,6 +67,7 @@ class ProcurementForm extends Component
         } else {
             $this->date_prepared = now()->format('Y-m-d');
             $this->procurement_number = Procurement::generateNumber();
+            $this->prepared_by = auth()->user()?->name ?? '';
         }
     }
 
@@ -79,8 +83,32 @@ class ProcurementForm extends Component
     public function selectRfq(int $rfqId): void
     {
         $this->selectedRfqId = $rfqId;
-        $this->showRfqPicker = false;
+        $this->showDuplicateWarning = false;
         $this->rfqSearch = '';
+
+        $rfq = Rfq::with('items')->find($rfqId);
+        if ($rfq) {
+            $alreadyAllAdded = $rfq->items->every(fn($rfqItem) =>
+                collect($this->items)->contains(fn($item) =>
+                    $item['rfq_item_id'] == $rfqItem->id && $item['agency_id'] == $rfq->agency_id
+                )
+            );
+            if ($alreadyAllAdded && $rfq->items->isNotEmpty()) {
+                $this->showDuplicateWarning = true;
+            }
+        }
+    }
+
+    public function confirmAddRfq(): void
+    {
+        $this->showDuplicateWarning = false;
+        $this->addRfqItems();
+    }
+
+    public function cancelAddRfq(): void
+    {
+        $this->showDuplicateWarning = false;
+        $this->selectedRfqId = null;
     }
 
     public function addRfqItems(): void
@@ -88,6 +116,13 @@ class ProcurementForm extends Component
         if (!$this->selectedRfqId) {
             return;
         }
+
+        // Remove empty placeholder rows before adding RFQ items
+        $this->items = array_values(array_filter($this->items, function ($item) {
+            return !(trim($item['item_description'] ?? '') === ''
+                && trim($item['unit'] ?? '') === ''
+                && trim($item['quantity'] ?? '') === '');
+        }));
 
         $rfq = Rfq::with('items')->findOrFail($this->selectedRfqId);
 
@@ -112,7 +147,26 @@ class ProcurementForm extends Component
         }
 
         $this->selectedRfqId = null;
+        $this->showRfqPicker = false;
+        $this->rfqSearch = '';
         $this->dispatch('item-added');
+    }
+
+    public function clearItems(): void
+    {
+        $this->items = [
+            [
+                'agency_id' => '',
+                'rfq_item_id' => '',
+                'brand' => '',
+                'item_description' => '',
+                'unit' => '',
+                'quantity' => '',
+                'unit_price' => '',
+                'status' => 'Pending',
+                'notes' => '',
+            ],
+        ];
     }
 
     public function addItem(): void
@@ -231,9 +285,14 @@ class ProcurementForm extends Component
 
     public function render()
     {
+        $selectedRfq = $this->selectedRfqId
+            ? Rfq::with('items')->find($this->selectedRfqId)
+            : null;
+
         return view('livewire.procurement-form', [
             'agencies' => Agency::orderBy('name')->get(),
             'awardedRfqs' => $this->awardedRfqs,
+            'selectedRfq' => $selectedRfq,
         ]);
     }
 }
